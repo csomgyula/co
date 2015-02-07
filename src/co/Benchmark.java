@@ -55,7 +55,7 @@ public class Benchmark {
 	public Stat run() {
 		Sys.debug("benchmark started");
 		
-		long startedNs, finishedNs, arrivalNs = 0;
+		long startedNs, finishedNs = 0, arrivalNs = 0;
 		int processedCount = 0;
 		
 		arrivalNs = System.nanoTime();
@@ -105,8 +105,11 @@ public class Benchmark {
 	public static void main(String[] args) throws IOException{
 		Sys.timeZero();
 		
-		Benchmark benchmark = new Benchmark(new co.load.Steady(1, TimeUnit.MILLISECONDS), new co.task.Fibonacci(100_000, 1_000_000_000), 100);
+		Load load = new co.load.Steady(2, TimeUnit.MILLISECONDS);
+		Benchmark benchmark = new Benchmark(load, new co.task.Fibonacci(100_000, 1_000_000_000), 100);
 		Stat stat = benchmark.run();
-		stat.toCSV("stat.csv");
+		
+		System.out.println( "Load: " + load.toString() );
+		stat.process();
 	}	
 }

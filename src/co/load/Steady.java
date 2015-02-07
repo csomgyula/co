@@ -31,4 +31,9 @@ public class Steady implements Load {
 	 */
 	@Override
 	public long nextRelativeTimeNs(){ return timeDiffNs; }
+	
+	@Override
+	public String toString() {
+		return "Steady load with " + (timeDiffNs / 1_000_000) + " ms frequency";
+	}
 }

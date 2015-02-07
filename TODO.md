@@ -3,7 +3,6 @@ TODO
 
 Updated: 2015.02.07.
 
-* Average time calculation
 * Histogram & Percentile calculation
 
 Backlog
@@ -16,6 +15,7 @@ Backlog
 DONE
 --
 
+* Average time calculation
 * Core framework: 
   * Benchmark runner
   * Load interface, Steady load service
