@@ -20,7 +20,7 @@ public class Stat {
     
     // statistics calculated by this object
     private List<Long> idleList, waitList, dequeueList, processingList, processing2List, totalList;
-    private double avgWait, avgDequeue, avgProcessing, avgProcessing2;
+    private double avgIdle, avgWait, avgDequeue, avgProcessing, avgProcessing2, avgTotal;
     
     /**
      * Initialize the stat.
@@ -115,23 +115,27 @@ public class Stat {
         }
     }
         
-	/**
-	 * Calculate averages for the following times: wait, dequeue, processing, processing2. See calculateTimings() for details.
-	 */
+    /**
+     * Calculate averages for the following times: wait, dequeue, processing, processing2. See calculateTimings() for details.
+     */
     protected void averages() {
         Average average = new Average(); 
         int MILLION = 1_000_000;
         
-        avgWait = average.calculate(waitList); 
-        avgDequeue = average.calculate(dequeueList); 
-        avgProcessing = average.calculate(processingList); 
-        avgProcessing2 = average.calculate(processing2List);
+        avgIdle = idleList.stream().mapToLong((val) -> val).average().getAsDouble();
+        avgWait = waitList.stream().mapToLong((val) -> val).average().getAsDouble();
+        avgDequeue = dequeueList.stream().mapToLong((val) -> val).average().getAsDouble();
+        avgProcessing = processingList.stream().mapToLong((val) -> val).average().getAsDouble();
+        avgProcessing2 = processing2List.stream().mapToLong((val) -> val).average().getAsDouble();
+        avgTotal = totalList.stream().mapToLong((val) -> val).average().getAsDouble();
         
         System.out.println("Averages:");
+        System.out.println("  idle time:             " + avgIdle / MILLION + " ms");
         System.out.println("  wait time:             " + avgWait / MILLION + " ms");
         System.out.println("  dequeue time:          " + avgDequeue / MILLION + " ms");
         System.out.println("  processing time:       " + avgProcessing / MILLION + " ms");
         System.out.println("  gross processing time: " + avgProcessing2 / MILLION + " ms (processing time + dequeue time)");
+        System.out.println("  total time:            " + avgTotal / MILLION + " ms");
     }
     
     /**
