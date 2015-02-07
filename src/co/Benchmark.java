@@ -4,13 +4,15 @@ import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents the benchmark, that executes the given times as many times as the given request count and records the timing results.
+ * Represents the benchmark, that executes the given times as many times as the given request count 
+ * and records the timing results.
  * 
  * FEATURES:
  *
  *  - Warms up the environment 
  *  - Runs as many cycles as the given request count
- *  - Manages scheduling through the configured probability distribution represented by a Load object
+ *  - Manages scheduling through the configured probability distribution represented by a Load 
+ *    object
  *  - Executes the benchmarked task by delegating to the configured Task object
  *  - Measures the execution time and records it through the configured Stat object
  *  
@@ -27,20 +29,27 @@ public class Benchmark {
 	private final int warmupCount;
 	
 	/** 
-	 * Initializes the benchmark with the given arguments and with a newly created Stat object and with the default number of warm up cycles.
+	 * Initializes the benchmark with the given arguments and with a newly created Stat object and
+	 * with the default number of warm up cycles.
 	 */
-	public Benchmark(Load load, Task task, int requestCount) { this(load, task, requestCount, new Stat(), DEFAULT_WARMUP_COUNT); }
+	public Benchmark(Load load, Task task, int requestCount) { 
+		this(load, task, requestCount, DEFAULT_WARMUP_COUNT, new Stat()); 
+	}
 	
 	/** 
-	 * Initializes the benchmark with the given arguments and with the default number of warm up cycles.
+	 * Initializes the benchmark with the given arguments and with the default number of warm up 
+	 * cycles.
 	 */
-	public Benchmark(Load load, Task task, int requestCount, Stat stat) { this(load, task, requestCount, stat, DEFAULT_WARMUP_COUNT); }
+	public Benchmark(Load load, Task task, int requestCount, int warmupCount) { 
+		this(load, task, requestCount, warmupCount, new Stat()); 
+	}
 	
 	/** 
 	 * Initializes the benchmark with the given arguments.
 	 */
-	public Benchmark(Load load, Task task, int requestCount, Stat stat, int warmupCount) {
-		Sys.assertTrue(load != null && task != null && requestCount >= 0 && stat != null && warmupCount >= 0);
+	public Benchmark(Load load, Task task, int requestCount, int warmupCount, Stat stat) {
+		Sys.assertTrue(load != null && task != null && requestCount >= 0 && stat != null && 
+			warmupCount >= 0);
 		
 		this.load = load;
 		this.task = task;
@@ -63,7 +72,8 @@ public class Benchmark {
 			// if (Sys.DEBUG) { Sys.debug("processing: " + (processedCount - warmupCount)); }
 			
 			// after warm up reset arrival time to now
-			// this has the effect as if we flushed (empty) the request queue since from now on each requests' arrival time will  be in the future
+			// this has the effect as if we flushed (empty) the request queue since from now on 
+			// each requests' arrival time will  be in the future
 			if (processedCount == warmupCount) { arrivalNs = System.nanoTime(); } 
 			
 			// schedule
@@ -94,8 +104,10 @@ public class Benchmark {
 		long nowNs;
 		int sleepTimeMs, sleepTimeNs;
 		while ((nowNs = System.nanoTime()) < arrivalNs) {
-			sleepTimeMs = (int) TimeUnit.MILLISECONDS.convert(arrivalNs - nowNs, TimeUnit.NANOSECONDS);
-			sleepTimeNs = (int) (arrivalNs - nowNs - TimeUnit.NANOSECONDS.convert(sleepTimeMs, TimeUnit.MILLISECONDS));
+			sleepTimeMs = (int) TimeUnit.MILLISECONDS.convert(arrivalNs 
+				- nowNs, TimeUnit.NANOSECONDS);
+			sleepTimeNs = (int) (arrivalNs - nowNs - 
+				TimeUnit.NANOSECONDS.convert(sleepTimeMs, TimeUnit.MILLISECONDS));
 			try { Thread.sleep(sleepTimeMs, sleepTimeNs); }
 			catch(InterruptedException e) { Sys.debug("scheduled wait interrupted"); }
 		}
@@ -106,7 +118,9 @@ public class Benchmark {
 		Sys.timeZero();
 		
 		Load load = new co.load.Steady(2, TimeUnit.MILLISECONDS);
-		Benchmark benchmark = new Benchmark(load, new co.task.Fibonacci(100_000, 1_000_000_000), 100);
+		Task task = new co.task.Fibonacci(100_000, 1_000_000_000);
+		int requestCount = 100;
+		Benchmark benchmark = new Benchmark(load, task, requestCount);
 		Stat stat = benchmark.run();
 		
 		System.out.println( "Load: " + load.toString() );

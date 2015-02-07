@@ -9,8 +9,10 @@ import java.util.Random;
  *
  * FEATURES:
  *
- * - It calculates the Nth Fibonacci number, where N is chosen randomly between a given minIndex and 2 * minIndex. That is: minIndex <= N < 2 * minIndex 
- *   Randomization is used in order to avoid (JIT) compiler optimization, that might be possible if the benchmark calculated the same index always.
+ * - It calculates the Nth Fibonacci number, where N is chosen randomly between a given minIndex 
+ *   and 2 * minIndex. That is: minIndex <= N < 2 * minIndex 
+ * - Randomization is used in order to avoid (JIT) compiler optimization, that might be possible
+ *   if the benchmark calculated the same index always.
  * - In order to control integer overflow it calculates only the remainder by the given modulus. 
  */ 
 public class Fibonacci implements Task {
@@ -29,8 +31,8 @@ public class Fibonacci implements Task {
 	}
 	
 	/**
-	 * Executes the logic represented by the Task, this case it calculates the remainder of the Nth Fibonacci number, 
-	 * where N is chosen randomly between minIndex and 2 * minIndex.
+	 * Executes the logic represented by the Task, this case it calculates the remainder of the
+	 * Nth Fibonacci number, where N is chosen randomly between minIndex and 2 * minIndex.
 	 */
 	@Override
 	public void execute() { 

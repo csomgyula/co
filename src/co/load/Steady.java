@@ -26,8 +26,9 @@ public class Steady implements Load {
 	}
 	
 	/** 
-	 * Returns the relative time of the next arrival (in nanoseconds precision), that is the time between two adjacent requests. 
-	 * This load generator will always return the same constant time this load generator is initialized to.
+	 * Returns the relative time of the next arrival (in nanoseconds precision), that is the time 
+	 * between two consecutive requests. This load generator will always return the same constant
+	 * time this load generator is initialized to.
 	 */
 	@Override
 	public long nextRelativeTimeNs(){ return timeDiffNs; }

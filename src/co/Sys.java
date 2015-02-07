@@ -29,13 +29,16 @@ public class Sys{
 	public static void timeZero() { Sys.debug("TIME ZERO: " + TIME_ZERO); }
 	
 	/** 
-	 * Prints a debug message to the standard console (inspired by syslog): <PRIORITY>VERSION TIMESTAMP THREAD [MESSAGE]
+	 * Prints a debug message to the standard console (inspired by syslog): 
+	 *
+	 *   <PRIORITY>VERSION TIMESTAMP THREAD [MESSAGE]
 	 */
 	public static void debug(String message) {
 		if (DEBUG) {
 			long nowNs = System.nanoTime() - TIME_ZERO;
 			long now = TimeUnit.MILLISECONDS.convert(nowNs, TimeUnit.NANOSECONDS);
-			System.out.println( "<D>1 " + now + " " + Thread.currentThread().getId() + " [" + message + "]");
+			System.out.println( "<D>1 " + now + " " + Thread.currentThread().getId() + 
+				" [" + message + "]");
 		}
 	}
 	
