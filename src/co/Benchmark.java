@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents the benchmark, that executes the given times as many times as the given request count 
+ * Represents the benchmark, that executes the given times as many times as the given request count
  * and records the timing results.
  * 
  * FEATURES:
@@ -37,8 +37,7 @@ public class Benchmark {
 	}
 	
 	/** 
-	 * Initializes the benchmark with the given arguments and with the default number of warm up 
-	 * cycles.
+	 * Initializes the benchmark with the given arguments and with a newly created Stat object.
 	 */
 	public Benchmark(Load load, Task task, int requestCount, int warmupCount) { 
 		this(load, task, requestCount, warmupCount, new Stat()); 
