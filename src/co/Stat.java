@@ -33,7 +33,7 @@ public class Stat {
     
     /**
      * Record the given times: the arrival of the request and the start/finish time of its 
-	 * processing.
+     * processing.
      */
     public void record(long arrivalNs, long startNs, long finishNs) {
         arrivalList.add(arrivalNs);
@@ -60,10 +60,10 @@ public class Stat {
      * dequeue is the time necessary to dequeue the request and start its processing, formally:
      *
      *                start - previous finish time : if the request is already in the queue when 
-	 *                                               the previous request finished 
+     *                                               the previous request finished 
      *      dequeue = 
      *                start - arrival time : if the request arrived later then the finish of the 
-	 *                                       previous request
+     *                                       previous request
      *
      * wait is the time while the request is in the queue:
      *
@@ -90,7 +90,7 @@ public class Stat {
         totalList = new ArrayList<Long>();
         
         long arrival, start, finish = Long.MIN_VALUE, prevFinish, idle, wait, dequeue, processing, 
-			processing2, total;
+            processing2, total;
         
         int statCount = arrivalList.size();
         for (int i = 0; i < statCount; i++) {
@@ -121,7 +121,7 @@ public class Stat {
         
     /**
      * Calculate averages for the following times: wait, dequeue, processing, processing2. 
-	 * See calculateTimings() for details.
+     * See calculateTimings() for details.
      */
     protected void averages() {
         Average average = new Average(); 
@@ -140,7 +140,7 @@ public class Stat {
         System.out.println("  dequeue time:          " + avgDequeue / MILLION + " ms");
         System.out.println("  processing time:       " + avgProcessing / MILLION + " ms");
         System.out.println("  gross processing time: " + avgProcessing2 / MILLION + 
-			" ms (processing time + dequeue time)");
+            " ms (processing time + dequeue time)");
         System.out.println("  total time:            " + avgTotal / MILLION + " ms");
     }
     
@@ -155,7 +155,7 @@ public class Stat {
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         ) {
             bufferedWriter.write(
-				"arrival;start;finish;idle;wait;dequeue;processing;processing2;total");
+                "arrival;start;finish;idle;wait;dequeue;processing;processing2;total");
             bufferedWriter.newLine();
             int statCount = arrivalList.size();
             long arrival, start, finish, idle, wait, dequeue, processing, processing2, total;
@@ -172,7 +172,7 @@ public class Stat {
                 
                 String timingsString = 
                     String.format("%d;%d;%d;%d;%d;%d;%d;%d;%d", arrival, start, finish, idle, wait,
-						dequeue, processing, processing2, total);
+                        dequeue, processing, processing2, total);
                 bufferedWriter.write(timingsString);
                 bufferedWriter.newLine();
             }

@@ -9,9 +9,9 @@ import co.Task;
 public class Counter implements Task {
     private int count;
 
-	/**
-	 * Executes the logic represented by the Task, this case simply increment a counter.
-	 */
-	@Override
-	public void execute() { count++; }
+    /**
+     * Executes the logic represented by the Task, this case simply increment a counter.
+     */
+    @Override
+    public void execute() { count++; }
 }
