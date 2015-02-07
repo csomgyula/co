@@ -1,0 +1,6 @@
+*.bat
+/classes
+/papers
+*.csv
+*.xlsx
+/lib

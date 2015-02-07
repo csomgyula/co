@@ -1,0 +1,112 @@
+package co;
+
+import java.io.*;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Represents the benchmark, that executes the given times as many times as the given request count and records the timing results.
+ * 
+ * FEATURES:
+ *
+ *  - Warms up the environment 
+ *  - Runs as many cycles as the given request count
+ *  - Manages scheduling through the configured probability distribution represented by a Load object
+ *  - Executes the benchmarked task by delegating to the configured Task object
+ *  - Measures the execution time and records it through the configured Stat object
+ *  
+ * DESIGN: http://yuml.me/99022e58
+ *
+ * TODO: Rethink warm up logic
+ */
+public class Benchmark {
+	private final Load load;
+	private final Task task;
+	private final int requestCount;
+	private final Stat stat;
+	private final static int DEFAULT_WARMUP_COUNT = 1000;
+	private final int warmupCount;
+	
+	/** 
+	 * Initializes the benchmark with the given arguments and with a newly created Stat object and with the default number of warm up cycles.
+	 */
+	public Benchmark(Load load, Task task, int requestCount) { this(load, task, requestCount, new Stat(), DEFAULT_WARMUP_COUNT); }
+	
+	/** 
+	 * Initializes the benchmark with the given arguments and with the default number of warm up cycles.
+	 */
+	public Benchmark(Load load, Task task, int requestCount, Stat stat) { this(load, task, requestCount, stat, DEFAULT_WARMUP_COUNT); }
+	
+	/** 
+	 * Initializes the benchmark with the given arguments.
+	 */
+	public Benchmark(Load load, Task task, int requestCount, Stat stat, int warmupCount) {
+		Sys.assertTrue(load != null && task != null && requestCount >= 0 && stat != null && warmupCount >= 0);
+		
+		this.load = load;
+		this.task = task;
+		this.requestCount = requestCount;
+		this.stat = stat;
+		this.warmupCount = warmupCount;
+	}
+	
+	/**
+	 * The main benchmarking method.
+	 */
+	public Stat run() {
+		Sys.debug("benchmark started");
+		
+		long startedNs, finishedNs, arrivalNs = 0;
+		int processedCount = 0;
+		
+		arrivalNs = System.nanoTime();
+		while(processedCount < requestCount + warmupCount) {
+			// if (Sys.DEBUG) { Sys.debug("processing: " + (processedCount - warmupCount)); }
+			
+			// after warm up reset arrival time to now
+			// this has the effect as if we flushed (empty) the request queue since from now on each requests' arrival time will  be in the future
+			if (processedCount == warmupCount) { arrivalNs = System.nanoTime(); } 
+			
+			// schedule
+			arrivalNs += load.nextRelativeTimeNs();
+			if (finishedNs < arrivalNs) { sleepUntilNextRequest(arrivalNs); }
+			
+			// run & measure FIXME: can the compiler reorder these actions?
+			startedNs = System.nanoTime();
+			task.execute();
+			finishedNs = System.nanoTime();
+			
+			// increment processed count
+			processedCount++;
+			
+			// the first runs are warm up ones, only record stats if warm up is over
+			if (processedCount > warmupCount) { stat.record(arrivalNs, startedNs, finishedNs); }
+		}
+		
+		Sys.debug("benchmark finished");
+		
+		return stat;
+	}
+	
+	/**
+	 * Sleeps until the given arrival time. The time must be in line with System.nanoTime().
+	 */
+	protected void sleepUntilNextRequest(long arrivalNs) {
+		long nowNs;
+		int sleepTimeMs, sleepTimeNs;
+		while ((nowNs = System.nanoTime()) < arrivalNs) {
+			sleepTimeMs = (int) TimeUnit.MILLISECONDS.convert(arrivalNs - nowNs, TimeUnit.NANOSECONDS);
+			sleepTimeNs = (int) (arrivalNs - nowNs - TimeUnit.NANOSECONDS.convert(sleepTimeMs, TimeUnit.MILLISECONDS));
+			try { Thread.sleep(sleepTimeMs, sleepTimeNs); }
+			catch(InterruptedException e) { Sys.debug("scheduled wait interrupted"); }
+		}
+	}
+	
+	
+	public static void main(String[] args) throws IOException{
+		Sys.timeZero();
+		
+		Benchmark benchmark = new Benchmark(new co.load.Steady(1, TimeUnit.MILLISECONDS), new co.task.Fibonacci(100_000, 1_000_000_000), 100);
+		Stat stat = benchmark.run();
+		stat.toCSV("stat.csv");
+	}	
+}
