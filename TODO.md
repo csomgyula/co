@@ -1,14 +1,13 @@
 TODO
 ==
 
-
-Next:
+Updated: 2015.02.07.
 
 * Average time calculation
 * Histogram & Percentile calculation
-* Learn Java MM, reordering
 
-Backlog:
+Backlog
+--
 
 * Argument handling in main method
 * Poisson load maybe?
@@ -20,6 +19,5 @@ DONE
 * Core framework: 
   * Benchmark runner
   * Load interface, Steady load service
-  * Task interface, Counter task
+  * Task interface, Counter task, Fibonacci task
   * basic Stat logic
-* Compute intensive task - Fibonacci
