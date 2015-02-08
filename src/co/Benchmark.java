@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents the benchmark, that executes the given times as many times as the given request count
+ * Represents the benchmark that executes the given task as many times as the given request count
  * and records the timing results.
  * 
  * FEATURES:
@@ -16,7 +16,9 @@ import java.util.concurrent.TimeUnit;
  *  - Executes the benchmarked task by delegating to the configured Task object
  *  - Measures the execution time and records it through the configured Stat object
  *  
- * DESIGN: http://yuml.me/99022e58
+ * DESIGN: 
+ *
+ *  ![](http://yuml.me/99022e58)
  *
  * TODO: Rethink warm up logic
  */
