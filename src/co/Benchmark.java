@@ -4,21 +4,26 @@ import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents the benchmark that executes the given task as many times as the given request count
- * and records the timing results.
+ * Represents the benchmark runner that implements the schedule-run-measure model. It executes 
+ * the given task as many times as the given request count within the following loop:
+ * 
+ * 1. schedule the execution according to the given load distribution
+ * 2. execute the given task
+ * 3. measure the execution time and record it
  * 
  * FEATURES:
  *
  *  - Warms up the environment 
- *  - Runs as many cycles as the given request count
- *  - Manages scheduling through the configured probability distribution represented by a Load 
- *    object
- *  - Executes the benchmarked task by delegating to the configured Task object
- *  - Measures the execution time and records it through the configured Stat object
+ *  - Schedule-run-measure
+ *  - Configurable 
+ *    - warm up count
+ *    - request count
+ *    - task represented by the Task interface
+ *    - load distribution represented by the Load interface
  *  
  * DESIGN: 
  *
- *  ![](http://yuml.me/99022e58)
+ *  ![](http://yuml.me/d856bbd5)
  *
  * TODO: Rethink warm up logic
  */
