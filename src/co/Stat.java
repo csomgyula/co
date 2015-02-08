@@ -1,7 +1,5 @@
 package co;
 
-import co.stat.Average;
-
 import java.util.*;
 import java.io.*;
 import java.util.concurrent.TimeUnit;
@@ -124,7 +122,6 @@ public class Stat {
      * See calculateTimings() for details.
      */
     protected void averages() {
-        Average average = new Average(); 
         int MILLION = 1_000_000;
         
         avgIdle = idleList.stream().mapToLong((val) -> val).average().getAsDouble();
