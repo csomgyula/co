@@ -2,7 +2,6 @@ package co;
 
 import java.util.*;
 import java.io.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implements the necessary statistical logic.
@@ -11,19 +10,53 @@ import java.util.concurrent.TimeUnit;
  *
  * - Records timings (recorded by the processing thread(s))
  * - Able to write the data out to a CSV file, for further analysis
+ *
+ * TODO:
+ *
+ * - split the class into an interface and an impl
  */ 
 public class Stat {
     // statistics recorded by the benchmark
     private List<Long> arrivalList, startList, finishList;
     
-    // statistics calculated by this object
-    private List<Long> idleList, waitList, dequeueList, processingList, processing2List, totalList;
-    private double avgIdle, avgWait, avgDequeue, avgProcessing, avgProcessing2, avgTotal;
-    
+    // statistics calculated by calculateTimings
+    private List<Long> idleList, waitList, dequeueList, processingList, grossProcessingList,
+            serviceList;
+
+    // indicators calculated by calculateIndicator
+    private Indicator idle, wait, dequeue, processing, grossProcessing, service;
+
+    /**
+     * Struct that holds the following indicators of a sample: average value, min/max and Nth
+     * percentile.
+     */
+    protected class Indicator {
+        protected String name;
+        protected double average, min, max, percentile;
+        protected int percentage;
+
+        public Indicator(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            int MILLION = 1_000_000;
+            return String.format(
+                    "%25s: min: %f ms, avg: %f ms, %d%%: %f max: %f ms",
+                    name,
+                    min / MILLION,
+                    average / MILLION,
+                    percentage,
+                    percentile / MILLION,
+                    max / MILLION);
+        }
+    }
+
     /**
      * Initialize the stat.
      */
-    protected Stat(){ 
+    public Stat(){
         arrivalList = new ArrayList<Long>();
         startList = new ArrayList<Long>();
         finishList = new ArrayList<Long>();
@@ -42,14 +75,14 @@ public class Stat {
     /**
      * Calculate statistics.
      */
-    public void process() throws IOException{
+    public void calculate() throws IOException{
         calculateTimings();
-        averages();
+        calculateIndicators();
         toCSV("stat.csv");
     }
     
     /**
-     * Calculate the following times: idle, wait, dequeue, processing, total, where:
+     * Calculate the following times: idle, wait, dequeue, (gross)processing, service, where:
      *
      * idle time is the period during the request is not processed, formally:
      *   
@@ -71,21 +104,21 @@ public class Stat {
      *
      *      processing = finish - start
      *
-     * processing2 is the active processing time of the request plus dequeue time:
+     * grossProcessing is the active processing time of the request plus dequeue time:
      *
-     *      processing2 = processing + dequeue
+     *      grossProcessing = processing + dequeue
      *
-     * total is the total time from arrival to finish:
+     * service is the total service time starting from arrival up to finish:
      *
-     *      total = finish - start
+     *      service = finish - arrival
      */
     protected void calculateTimings() {
         idleList = new ArrayList<Long>();
         waitList = new ArrayList<Long>();
         dequeueList = new ArrayList<Long>();
         processingList = new ArrayList<Long>();
-        processing2List = new ArrayList<Long>();
-        totalList = new ArrayList<Long>();
+        grossProcessingList = new ArrayList<Long>();
+        serviceList = new ArrayList<Long>();
         
         long arrival, start, finish = Long.MIN_VALUE, prevFinish, idle, wait, dequeue, processing, 
             processing2, total;
@@ -112,35 +145,54 @@ public class Stat {
             waitList.add(wait);
             dequeueList.add(dequeue);
             processingList.add(processing);
-            processing2List.add(processing2);
-            totalList.add(total);
+            grossProcessingList.add(processing2);
+            serviceList.add(total);
         }
     }
         
     /**
-     * Calculate averages for the following times: wait, dequeue, processing, processing2. 
+     * Calculate indicators for the following times: wait, dequeue, processing, grossProcessing.
      * See calculateTimings() for details.
      */
-    protected void averages() {
+    protected void calculateIndicators() {
+        idle = calculateIndicatorOf("idle time", idleList);
+        wait = calculateIndicatorOf("wait time", waitList);
+        dequeue = calculateIndicatorOf("dequeue time", dequeueList);
+        processing = calculateIndicatorOf("processing time", processingList);
+        grossProcessing = calculateIndicatorOf("gross processing time", grossProcessingList);
+        service = calculateIndicatorOf("service time", serviceList);
+
         int MILLION = 1_000_000;
-        
-        avgIdle = idleList.stream().mapToLong((val) -> val).average().getAsDouble();
-        avgWait = waitList.stream().mapToLong((val) -> val).average().getAsDouble();
-        avgDequeue = dequeueList.stream().mapToLong((val) -> val).average().getAsDouble();
-        avgProcessing = processingList.stream().mapToLong((val) -> val).average().getAsDouble();
-        avgProcessing2 = processing2List.stream().mapToLong((val) -> val).average().getAsDouble();
-        avgTotal = totalList.stream().mapToLong((val) -> val).average().getAsDouble();
-        
-        System.out.println("Averages:");
-        System.out.println("  idle time:             " + avgIdle / MILLION + " ms");
-        System.out.println("  wait time:             " + avgWait / MILLION + " ms");
-        System.out.println("  dequeue time:          " + avgDequeue / MILLION + " ms");
-        System.out.println("  processing time:       " + avgProcessing / MILLION + " ms");
-        System.out.println("  gross processing time: " + avgProcessing2 / MILLION + 
-            " ms (processing time + dequeue time)");
-        System.out.println("  total time:            " + avgTotal / MILLION + " ms");
+        System.out.println("Indicators:");
+        System.out.println("  " + idle);
+        System.out.println("  " + wait);
+        System.out.println("  " + dequeue);
+        System.out.println("  " + processing);
+        System.out.println("  " + grossProcessing);
+        System.out.println("  " + service);
     }
-    
+
+    protected Indicator calculateIndicatorOf(String name, List<Long> sample) {
+        Indicator indicator = new Indicator(name);
+
+        // average
+        indicator.average = sample.stream().mapToLong((val) -> val).average().getAsDouble();
+
+        // min, max, percentile
+        List<Long> sampleClone = new ArrayList<Long>(sample);
+        Collections.sort(sampleClone);
+        int size = sampleClone.size();
+
+        indicator.min = sampleClone.get(0);
+        indicator.max = sampleClone.get(size - 1);
+
+        indicator.percentage = 99;
+        int percentageIndex = (int) ((long) indicator.percentage * (long) size / 100l);
+        indicator.percentile = sampleClone.get(percentageIndex - 1);
+
+        return indicator;
+    }
+
     /**
      * Writes statistics to the given CSV file.
      */
@@ -152,7 +204,7 @@ public class Stat {
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         ) {
             bufferedWriter.write(
-                "arrival;start;finish;idle;wait;dequeue;processing;processing2;total");
+                "arrival;start;finish;idle;wait;dequeue;processing;grossProcessing;service");
             bufferedWriter.newLine();
             int statCount = arrivalList.size();
             long arrival, start, finish, idle, wait, dequeue, processing, processing2, total;
@@ -164,8 +216,8 @@ public class Stat {
                 dequeue = dequeueList.get(i);
                 wait = waitList.get(i);
                 processing = processingList.get(i);
-                processing2 = processing2List.get(i);
-                total = totalList.get(i);
+                processing2 = grossProcessingList.get(i);
+                total = serviceList.get(i);
                 
                 String timingsString = 
                     String.format("%d;%d;%d;%d;%d;%d;%d;%d;%d", arrival, start, finish, idle, wait,

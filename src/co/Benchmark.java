@@ -32,7 +32,7 @@ public class Benchmark {
     private final Task task;
     private final int requestCount;
     private final Stat stat;
-    private final static int DEFAULT_WARMUP_COUNT = 1000;
+    private final static int DEFAULT_WARMUP_COUNT = 100;
     private final int warmupCount;
     
     /** 
@@ -121,15 +121,18 @@ public class Benchmark {
     
     
     public static void main(String[] args) throws IOException{
+        // init
         Sys.timeZero();
-        
         Load load = new co.load.Steady(2, TimeUnit.MILLISECONDS);
-        Task task = new co.task.Fibonacci(100_000, 1_000_000_000);
+        Task task = new co.task.Fibonacci(1_000_000);
         int requestCount = 100;
         Benchmark benchmark = new Benchmark(load, task, requestCount);
+
+        // run
         Stat stat = benchmark.run();
-        
+
+        // info
         System.out.println( "Load: " + load.toString() );
-        stat.process();
+        stat.calculate();
     }   
 }
