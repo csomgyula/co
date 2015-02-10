@@ -123,10 +123,11 @@ public class Benchmark {
     public static void main(String[] args) throws IOException{
         // init
         Sys.timeZero();
-        Load load = new co.load.Steady(2, TimeUnit.MILLISECONDS);
+        Load load = new co.load.Steady(1900, TimeUnit.MICROSECONDS);
         Task task = new co.task.Fibonacci(1_000_000);
-        int requestCount = 100;
-        Benchmark benchmark = new Benchmark(load, task, requestCount);
+        int requestCount = 1000;
+        int warmupCount = 1000;
+        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount);
 
         // run
         Stat stat = benchmark.run();
@@ -134,5 +135,6 @@ public class Benchmark {
         // info
         System.out.println( "Load: " + load.toString() );
         stat.calculate();
+        stat.toCSV("stat.csv");
     }   
 }

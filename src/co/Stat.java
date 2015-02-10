@@ -78,7 +78,6 @@ public class Stat {
     public void calculate() throws IOException{
         calculateTimings();
         calculateIndicators();
-        toCSV("stat.csv");
     }
     
     /**
@@ -196,7 +195,7 @@ public class Stat {
     /**
      * Writes statistics to the given CSV file.
      */
-    protected void toCSV(String path) throws IOException {
+    public void toCSV(String path) throws IOException {
         File csvFile = new File(path);
         
         try (

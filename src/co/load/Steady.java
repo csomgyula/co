@@ -35,6 +35,6 @@ public class Steady implements Load {
     
     @Override
     public String toString() {
-        return "Steady load with " + (timeDiffNs / 1_000_000) + " ms frequency";
+        return "Steady load with " + ((double) timeDiffNs / 1_000_000d) + " ms frequency";
     }
 }
