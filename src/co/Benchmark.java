@@ -1,6 +1,9 @@
 package co;
 
+import co.load.Exponential;
 import co.stat.Indicators;
+import co.task.Fibonacci;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -105,8 +108,9 @@ public class Benchmark {
     public static void main(String[] args) throws Exception{
         // init benchmark
         Sys.timeZero();
-        Load load = new co.load.Steady(1900, TimeUnit.MICROSECONDS);
-        Task task = new co.task.Fibonacci(1_000_000);
+        // Load load = new co.load.Steady(1900, TimeUnit.MICROSECONDS);
+        Load load = new Exponential(2800, TimeUnit.MICROSECONDS);
+        Task task = new Fibonacci(1_000_000);
         int requestCount = 1000;
         int warmupCount = 1000;
         Stat stat = new Indicators();

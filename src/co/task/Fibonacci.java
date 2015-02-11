@@ -25,7 +25,7 @@ public class Fibonacci implements Task {
         Sys.assertTrue(minIndex >= 0);
         
         this.minIndex = minIndex;
-        this.random = new Random();
+        random = new Random();
     }
     
     /**
