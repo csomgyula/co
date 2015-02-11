@@ -38,7 +38,7 @@ public class Indicators extends Raw{
         public String toString() {
             int MILLION = 1_000_000;
             return String.format(
-                    "%25s: min: %f ms, avg: %f ms, %d%%: %f max: %f ms",
+                    "%25s: min: %f ms, avg: %f ms, %d%%: %f ms, max: %f ms",
                     name,
                     min / MILLION,
                     average / MILLION,
