@@ -1,5 +1,8 @@
 package co;
 
+import co.stat.Indicators;
+import co.stat.Raw;
+
 import java.io.*;
 import java.util.concurrent.TimeUnit;
 
@@ -36,21 +39,6 @@ public class Benchmark {
     private final int warmupCount;
     
     /** 
-     * Initializes the benchmark with the given arguments and with a newly created Stat object and
-     * with the default number of warm up cycles.
-     */
-    public Benchmark(Load load, Task task, int requestCount) { 
-        this(load, task, requestCount, DEFAULT_WARMUP_COUNT, new Stat()); 
-    }
-    
-    /** 
-     * Initializes the benchmark with the given arguments and with a newly created Stat object.
-     */
-    public Benchmark(Load load, Task task, int requestCount, int warmupCount) { 
-        this(load, task, requestCount, warmupCount, new Stat()); 
-    }
-    
-    /** 
      * Initializes the benchmark with the given arguments.
      */
     public Benchmark(Load load, Task task, int requestCount, int warmupCount, Stat stat) {
@@ -67,7 +55,7 @@ public class Benchmark {
     /**
      * The main benchmarking method.
      */
-    public Stat run() {
+    public void run() {
         Sys.debug("benchmark started");
         
         long startedNs, finishedNs = 0, arrivalNs = 0;
@@ -99,8 +87,6 @@ public class Benchmark {
         }
         
         Sys.debug("benchmark finished");
-        
-        return stat;
     }
     
     /**
@@ -120,21 +106,26 @@ public class Benchmark {
     }
     
     
-    public static void main(String[] args) throws IOException{
-        // init
+    public static void main(String[] args) throws Exception{
+        // init benchmark
         Sys.timeZero();
         Load load = new co.load.Steady(1900, TimeUnit.MICROSECONDS);
         Task task = new co.task.Fibonacci(1_000_000);
         int requestCount = 1000;
         int warmupCount = 1000;
-        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount);
+        Stat stat = new Indicators();
+        // Stat stat = new Raw();
+        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount, stat);
 
-        // run
-        Stat stat = benchmark.run();
+        System.out.println("Load: " + load);
+        System.out.println("Task: Fibonacci (a compute intensive task)");
+        System.out.println("Request count: " + requestCount);
+        System.out.println("Stat: Indicators");
 
-        // info
-        System.out.println( "Load: " + load.toString() );
-        stat.calculate();
-        stat.toCSV("stat.csv");
+        // run benchmark
+        benchmark.run();
+
+        // process stats
+        stat.process();
     }   
 }

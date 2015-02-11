@@ -3,6 +3,8 @@ TODO
 
 Updated: 2015.02.11.
 
+* Correction Scheme (described in the paper)
+
 Backlog
 --
 
@@ -13,9 +15,7 @@ Backlog
 DONE
 --
 
-* Indicator statistics (average, min, max and percentile)
-* Core framework: 
-  * Benchmark runner
-  * Load interface, Steady load service
-  * Task interface, Counter task, Fibonacci task
-  * basic Stat logic
+* Benchmark runner
+* Load interface, Steady load
+* Task interface, Counter task, Fibonacci task
+* Stat interface, Raw stat (idle, wait, dequeue, (gross)processing, service), Indicator stat (min, max, avg, percentile)
