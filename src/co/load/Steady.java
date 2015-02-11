@@ -8,18 +8,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class Steady implements Load {
     private final long timeDiffNs;
-                      
-    /** 
-     * Initializes the load generator with the given time given in milliseconds. 
-     * The given time should represent the steady time between two adjacent requests.
-     */
-    public Steady(long timeDiffMs) {
-        this.timeDiffNs = TimeUnit.NANOSECONDS.convert(timeDiffMs, TimeUnit.MILLISECONDS);
-    }
     
     /** 
-     * Initializes the load generator with the given time given and time unit.
-     * The given time should represent the steady time between two adjacent requests.
+     * Initializes the load generator with the given time and time unit.
+     * The given time should represent the constant time between two consecutive requests.
      */
     public Steady(long timeDiff, TimeUnit unit) {
         this.timeDiffNs = TimeUnit.NANOSECONDS.convert(timeDiff, unit);

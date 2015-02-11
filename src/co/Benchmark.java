@@ -1,9 +1,6 @@
 package co;
 
 import co.stat.Indicators;
-import co.stat.Raw;
-
-import java.io.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,7 +32,6 @@ public class Benchmark {
     private final Task task;
     private final int requestCount;
     private final Stat stat;
-    private final static int DEFAULT_WARMUP_COUNT = 100;
     private final int warmupCount;
     
     /** 
@@ -58,7 +54,7 @@ public class Benchmark {
     public void run() {
         Sys.debug("benchmark started");
         
-        long startedNs, finishedNs = 0, arrivalNs = 0;
+        long startedNs, finishedNs = 0, arrivalNs;
         int processedCount = 0;
         
         arrivalNs = System.nanoTime();

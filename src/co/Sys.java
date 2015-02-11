@@ -10,9 +10,6 @@ import java.util.concurrent.TimeUnit;
  *  - Handles 'time zero' a time offset in order to shorten time stamps 
  *  - Provides simple debugging facility
  *  - Provides simple assertion
- *
- * TODO:
- *  - Implement assertion logic
  */
 public class Sys{
     public final static long TIME_ZERO;
@@ -45,5 +42,7 @@ public class Sys{
     /**
      * Checks whether the given constraint is true, throws exception if not.
      */
-    public static void assertTrue(boolean constraint) {}
+    public static void assertTrue(boolean constraint) {
+        if (!constraint) throw new AssertionError();
+    }
 }

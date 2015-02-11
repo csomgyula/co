@@ -36,12 +36,8 @@ public class Fibonacci implements Task {
     public void execute() { 
         long fib;
         long index = (long) minIndex + (long) random.nextInt(minIndex);
-        
-        // first the special cases: minIndex = 0 or 1
-        if (index == 0) { fib = 0; } else if (index == 1) { fib = 1; }
-        
-        // then the normal cases: minIndex > 1
-        else {
+
+        if (index > 1) {
             // initialize the sliding window
             long fibPrev = 0;
             fib = 1;

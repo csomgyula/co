@@ -31,9 +31,9 @@ public class Raw implements Stat {
      * Initialize the stat.
      */
     public Raw(){
-        arrivalList = new ArrayList<Long>();
-        startList = new ArrayList<Long>();
-        finishList = new ArrayList<Long>();
+        arrivalList = new ArrayList<>();
+        startList = new ArrayList<>();
+        finishList = new ArrayList<>();
     }
 
     /**
@@ -89,12 +89,12 @@ public class Raw implements Stat {
      *      service = finish - arrival
      */
     protected void calculateTimings() {
-        idleList = new ArrayList<Long>();
-        waitList = new ArrayList<Long>();
-        dequeueList = new ArrayList<Long>();
-        processingList = new ArrayList<Long>();
-        grossProcessingList = new ArrayList<Long>();
-        serviceList = new ArrayList<Long>();
+        idleList = new ArrayList<>();
+        waitList = new ArrayList<>();
+        dequeueList = new ArrayList<>();
+        processingList = new ArrayList<>();
+        grossProcessingList = new ArrayList<>();
+        serviceList = new ArrayList<>();
 
         long arrival, start, finish = Long.MIN_VALUE, prevFinish, idle, wait, dequeue, processing,
                 processing2, total;
@@ -134,7 +134,7 @@ public class Raw implements Stat {
 
         try (
                 FileWriter fileWriter = new FileWriter(csvFile);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)
         ) {
             bufferedWriter.write(
                     "arrival;start;finish;idle;wait;dequeue;processing;grossProcessing;service");

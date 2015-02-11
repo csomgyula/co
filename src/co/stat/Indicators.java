@@ -1,7 +1,5 @@
 package co.stat;
 
-import co.Sys;
-
 import java.util.*;
 import java.io.*;
 
@@ -62,7 +60,7 @@ public class Indicators extends Raw{
         
     /**
      * Calculate indicators for the following times: wait, dequeue, processing, grossProcessing.
-     * See calculateTimings() for details.
+     * See Raw.calculateTimings() for more details.
      */
     protected void calculateIndicators() {
         idle = calculateIndicatorOf("idle time", idleList);
@@ -90,7 +88,7 @@ public class Indicators extends Raw{
         indicator.average = sample.stream().mapToLong((val) -> val).average().getAsDouble();
 
         // min, max, percentile
-        List<Long> sampleClone = new ArrayList<Long>(sample);
+        List<Long> sampleClone = new ArrayList<>(sample);
         Collections.sort(sampleClone);
         int size = sampleClone.size();
 
