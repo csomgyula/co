@@ -2,6 +2,7 @@ package co;
 
 import co.load.Exponential;
 import co.stat.Indicators;
+import co.stat.Raw;
 import co.task.Fibonacci;
 
 import java.util.concurrent.TimeUnit;
@@ -54,20 +55,24 @@ public class Benchmark {
     /**
      * The main benchmarking method.
      */
-    public void run() {
+    public long run() {
         Sys.debug("benchmark started");
         
-        long startedNs, finishedNs = 0, arrivalNs;
+        long startedNs, finishedNs = 0, arrivalNs, benchmarkStartedNs = 0l;
         int processedCount = 0;
         
         arrivalNs = System.nanoTime();
+
         while(processedCount < requestCount + warmupCount) {
             // if (Sys.DEBUG) { Sys.debug("processing: " + (processedCount - warmupCount)); }
             
             // after warm up reset arrival time to now
             // this has the effect as if we flushed (empty) the request queue since from now on 
             // each requests' arrival time will  be in the future
-            if (processedCount == warmupCount) { arrivalNs = System.nanoTime(); } 
+            if (processedCount == warmupCount) {
+                benchmarkStartedNs = System.nanoTime();
+                arrivalNs = System.nanoTime();
+            }
             
             // schedule
             arrivalNs += load.nextRelativeTimeNs();
@@ -84,8 +89,10 @@ public class Benchmark {
             // the first runs are warm up ones, only record stats if warm up is over
             if (processedCount > warmupCount) { stat.record(arrivalNs, startedNs, finishedNs); }
         }
-        
+
         Sys.debug("benchmark finished");
+
+        return System.nanoTime() - benchmarkStartedNs;
     }
     
     /**
@@ -123,7 +130,9 @@ public class Benchmark {
         System.out.println("Stat: Indicators");
 
         // run benchmark
-        benchmark.run();
+        System.out.print("\nBenchmarking... ");
+        long runTime = benchmark.run();
+        System.out.println("done in " + runTime / 1_000_000 + " ms\n");
 
         // process stats
         stat.process();
