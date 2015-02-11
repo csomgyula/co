@@ -1,9 +1,7 @@
 TODO
 ==
 
-Updated: 2015.02.07.
-
-* Histogram & Percentile calculation
+Updated: 2015.02.11.
 
 Backlog
 --
@@ -15,7 +13,7 @@ Backlog
 DONE
 --
 
-* Average time calculation
+* Indicator statistics (average, min, max and percentile)
 * Core framework: 
   * Benchmark runner
   * Load interface, Steady load service
