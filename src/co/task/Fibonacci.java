@@ -53,4 +53,9 @@ public class Fibonacci implements Task {
         
         //if (Sys.DEBUG) { Sys.debug("fibonacci["+minIndex+"] % " + modulus + " = " + fib); }
     }
+
+    @Override
+    public String toString() {
+        return "Fibonacci with index in [" + minIndex + ", " + (2 * ((long) minIndex)) + "]";
+    }
 }

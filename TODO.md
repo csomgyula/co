@@ -4,6 +4,7 @@ TODO
 Updated: 2015.02.11.
 
 * Correction Scheme (described in the paper)
+* Arrival stat and indicators
 
 Backlog
 --

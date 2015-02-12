@@ -101,4 +101,9 @@ public class Indicators extends Raw{
 
         return indicator;
     }
+
+    @Override
+    public String toString() {
+        return "Indicator statistics";
+    }
 }

@@ -160,4 +160,9 @@ public class Raw implements Stat {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "Raw statistics";
+    }
 }
