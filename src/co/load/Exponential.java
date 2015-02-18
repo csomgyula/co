@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents the load of a Poisson Process[1]. That is the time between consecutive requests follow
+ * Represents the load of a Poisson process[1]. That is the time between consecutive requests follow
  * an exponential distribution[2].
  *
  * References:
@@ -36,9 +36,13 @@ public class Exponential implements Load {
     /**
      * Returns the relative time of the next arrival (in nanoseconds precision), that is the time
      * between two consecutive requests. This load generator models a Poisson process, hence the
-     * time follows an exponential distribution. The formula[1] is:
+     * time follows an exponential distribution. The formula[1] for each random time (t) is the
+     * following:
      *
-     *     time = -meanTime * log(1 - random)
+     *     t = -meanTime * log(1 - random)
+     *
+     * where `random` represents a randomly generated number equally distributed within the [0,1]
+     * interval.
      *
      * Reference:
      *
@@ -49,6 +53,10 @@ public class Exponential implements Load {
         return (long) (-meanTimeNs * Math.log(1 - random.nextDouble()));
     }
 
+    /**
+     * Returns a brief info about this Load generator. It gives the load type as Poisson process and
+     * the mean arrival time in ms.
+     */
     @Override
     public String toString() {
         return "Poisson process with mean arrival time of " +

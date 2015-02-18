@@ -1,10 +1,9 @@
 TODO
 ==
 
-Updated: 2015.02.11.
+Updated: 2015.02.18.
 
 * Correction Scheme (described in the paper)
-* Arrival stat and indicators
 
 Backlog
 --
@@ -17,5 +16,5 @@ DONE
 
 * Benchmark runner
 * Load interface, Steady load, Poisson process load
-* Task interface, Counter task, Fibonacci task
-* Stat interface, Raw stat (idle, wait, dequeue, (gross)processing, service), Indicator stat (min, max, avg, percentile)
+* Task interface, Counter task, Fibonacci task, some support against dead code elimination
+* Stat interface, Raw stat (idle, wait, dequeue, (gross)processing, service, arrival diffs), Indicator stat (min, max, avg, percentile)

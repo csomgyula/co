@@ -1,9 +1,5 @@
 package co;
 
-import co.load.Exponential;
-import co.stat.Indicators;
-import co.task.Fibonacci;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +32,7 @@ public class Benchmark {
     private final int requestCount;
     private final Stat stat;
     private final int warmupCount;
-    
+
     /** 
      * Initializes the benchmark with the given arguments.
      */
@@ -59,7 +55,8 @@ public class Benchmark {
         
         long startedNs, finishedNs = 0, arrivalNs, benchmarkStartedNs = 0l;
         int processedCount = 0;
-        
+        Object payload;
+
         arrivalNs = System.nanoTime();
 
         while(processedCount < requestCount + warmupCount) {
@@ -79,14 +76,16 @@ public class Benchmark {
             
             // run & measure FIXME: can the compiler reorder these actions?
             startedNs = System.nanoTime();
-            task.execute();
+            payload = task.execute();
             finishedNs = System.nanoTime();
             
             // increment processed count
             processedCount++;
             
             // the first runs are warm up ones, only record stats if warm up is over
-            if (processedCount > warmupCount) { stat.record(arrivalNs, startedNs, finishedNs); }
+            if (processedCount > warmupCount) {
+                stat.record(arrivalNs, startedNs, finishedNs, payload);
+            }
         }
 
         Sys.debug("benchmark finished");
@@ -114,13 +113,19 @@ public class Benchmark {
     public static void main(String[] args) throws Exception{
         // init benchmark
         Sys.timeZero();
-        Task task = new Fibonacci(1_000_000);
+
+        Task task = new co.task.Fibonacci(1_000_000);
+        // Task task = new co.task.Counter();
+
         int requestCount = 1000;
         int warmupCount = 1000;
-        // Load load = new co.load.Steady(1900, TimeUnit.MICROSECONDS);
-        Load load = new Exponential(30000, TimeUnit.MICROSECONDS);
-        Stat stat = new Indicators();
-        // Stat stat = new Raw();
+
+        Load load = new co.load.Steady(850, TimeUnit.MICROSECONDS);
+        //Load load = new co.load.Exponential(2000, TimeUnit.MICROSECONDS);
+
+        Stat stat = new co.stat.Indicators();
+        // Stat stat = new co.stat.Raw();
+
         Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount, stat);
 
         System.out.println("Load: " + load);
@@ -133,7 +138,7 @@ public class Benchmark {
         long runTime = benchmark.run();
         System.out.println("done in " + runTime / 1_000_000 + " ms\n");
 
-        // process stats
-        stat.process();
+        // post process stats
+        stat.postProcess();
     }   
 }

@@ -15,50 +15,28 @@ import java.util.List;
  *
  * FEATURES:
  *
- * - Records timings (recorded by the processing thread(s))
- * - Calculates various timings: idle, wait, dequeue, processing, grossProcessing, service time
+ * - Records timings (inherited from Recording)
+ * - Calculates various timings: idle, wait, dequeue, processing, grossProcessing, service, arrival
+ *   diff time
  * - Writes the data out to a CSV file, for further analysis
  */
-public class Raw implements Stat {
-    // statistics recorded by the benchmark
-    protected List<Long> arrivalList, startList, finishList;
-
+public class Raw extends Recording {
     // statistics calculated by calculateTimings
-    protected List<Long> idleList, waitList, dequeueList, processingList, grossProcessingList,
-            serviceList;
-
-    /**
-     * Initialize the stat.
-     */
-    public Raw(){
-        arrivalList = new ArrayList<>();
-        startList = new ArrayList<>();
-        finishList = new ArrayList<>();
-    }
-
-    /**
-     * Record the given times: the arrival of the request and the start/finish time of its
-     * processing.
-     */
-    @Override
-    public void record(long arrivalNs, long startNs, long finishNs) {
-        arrivalList.add(arrivalNs);
-        startList.add(startNs);
-        finishList.add(finishNs);
-    }
-
+    private List<Long> idleList, waitList, dequeueList, processingList, grossProcessingList,
+            serviceList, arrivalDiffList;
     /**
      * Calculate statistics.
      */
     @Override
-    public void process() throws IOException {
+    public void postProcess() throws IOException {
         calculateTimings();
         toCSV("raw_stat.csv");
         System.out.println("Raw stat: stats written to raw_stat.csv");
     }
 
     /**
-     * Calculate the following times: idle, wait, dequeue, (gross)processing, service, where:
+     * Calculate the following times: idle, wait, dequeue, (gross)processing, service, arrival diff,
+     * where:
      *
      * idle time is the period during the request is not processed, formally:
      *
@@ -87,17 +65,24 @@ public class Raw implements Stat {
      * service is the total service time starting from arrival up to finish:
      *
      *      service = finish - arrival
+     *
+     * arrival diff is the time diff between two consecutive requests, that is:
+     *
+     *      arrival diff = arrival - previous arrival
      */
     protected void calculateTimings() {
+        List<Long> arrivalList = super.getArrivalList(), startList = super.getStartList(),
+                finishList = super.getFinishList();
         idleList = new ArrayList<>();
         waitList = new ArrayList<>();
         dequeueList = new ArrayList<>();
         processingList = new ArrayList<>();
         grossProcessingList = new ArrayList<>();
         serviceList = new ArrayList<>();
+        arrivalDiffList = new ArrayList<>();
 
-        long arrival, start, finish = Long.MIN_VALUE, prevFinish, idle, wait, dequeue, processing,
-                processing2, total;
+        long arrival, prevArrival = 0, arrivalDiff = 0, start, finish = Long.MIN_VALUE, prevFinish,
+                idle, wait, dequeue, processing, processing2, total;
 
         int statCount = arrivalList.size();
         for (int i = 0; i < statCount; i++) {
@@ -109,8 +94,14 @@ public class Raw implements Stat {
 
             // calculate times
             idle = start - arrival;
-            if (i == 0) { dequeue = start - arrival; }
-            else { dequeue = start - (prevFinish > arrival ? prevFinish : arrival); }
+            if (i == 0) {
+                dequeue = start - arrival;
+            }
+            else {
+                arrivalDiff = arrival - prevArrival;
+                dequeue = start - (prevFinish > arrival ? prevFinish : arrival);
+            }
+            prevArrival = arrival;
             wait = idle - dequeue;
             processing = finish - start;
             processing2 = processing + dequeue;
@@ -123,6 +114,8 @@ public class Raw implements Stat {
             processingList.add(processing);
             grossProcessingList.add(processing2);
             serviceList.add(total);
+            if (i > 0)
+                arrivalDiffList.add(arrivalDiff);
         }
     }
 
@@ -131,6 +124,8 @@ public class Raw implements Stat {
      */
     protected void toCSV(String path) throws IOException {
         File csvFile = new File(path);
+        List<Long> arrivalList = super.getArrivalList(), startList = super.getStartList(),
+                finishList = super.getFinishList();
 
         try (
                 FileWriter fileWriter = new FileWriter(csvFile);
@@ -159,6 +154,34 @@ public class Raw implements Stat {
                 bufferedWriter.newLine();
             }
         }
+    }
+
+    public List<Long> getIdleList() {
+        return idleList;
+    }
+
+    public List<Long> getWaitList() {
+        return waitList;
+    }
+
+    public List<Long> getDequeueList() {
+        return dequeueList;
+    }
+
+    public List<Long> getProcessingList() {
+        return processingList;
+    }
+
+    public List<Long> getGrossProcessingList() {
+        return grossProcessingList;
+    }
+
+    public List<Long> getServiceList() {
+        return serviceList;
+    }
+
+    public List<Long> getArrivalDiffList() {
+        return arrivalDiffList;
     }
 
     @Override

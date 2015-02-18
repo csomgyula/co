@@ -1,7 +1,8 @@
 package co.task;
 
-import co.Task;
 import co.Sys;
+import co.Task;
+
 import java.util.Random;
 
 /** 
@@ -9,40 +10,51 @@ import java.util.Random;
  *
  * FEATURES:
  *
- * - It calculates the Nth Fibonacci number, where N is chosen randomly between a given minIndex 
- *   and 2 * minIndex. That is: minIndex <= N < 2 * minIndex 
- * - Randomization is used in order to avoid (JIT) compiler optimization, that might be possible
- *   if the benchmark calculated the same index always.
+ * - It calculates the Nth Fibonacci number
+ *
+ * NOTE:
+ *
+ * - The class guards against dead code elimination, however since a benchmark will always compute
+ *   the same number a very sophisticated compiler might falsely optimize this code (kinda
+ *   sophisticated form of constant folding). This case use the RandomizedFibonacci task.
+ *
+ *   You can simply test whether the compiler does or not constant folding. Just rerun the task with
+ *   different indices. If the execution time remains the same, then you can suspect constant
+ *   folding.
  */ 
 public class Fibonacci implements Task {
-    private int minIndex;
-    private Random random;
-    
+    private int index;
+
     /**
      * Initializes the Fibonacci task with the given (minimal) index and modulus.
      */
-    public Fibonacci(int minIndex) {
-        Sys.assertTrue(minIndex >= 0);
-        
-        this.minIndex = minIndex;
-        random = new Random();
+    public Fibonacci(int index) {
+        Sys.assertTrue(index >= 0);
+
+        this.index = index;
     }
-    
+
     /**
-     * Executes the logic represented by the Task, this case it calculates the Nth Fibonacci number
-     * where N is chosen randomly between minIndex and 2 * minIndex.
+     * Executes the logic represented by the Task, this case it calculates the Nth Fibonacci number.
      */
     @Override
-    public void execute() { 
-        long fib;
-        long index = (long) minIndex + (long) random.nextInt(minIndex);
+    public Object execute() {
+        long fib = 0;
 
-        if (index > 1) {
+        // special cases: index = 0 or 1
+        if (index == 0) {
+            fib = 0;
+        }
+        else if (index == 1) {
+            fib = 1;
+        }
+        // general case
+        else if (index > 1) {
             // initialize the sliding window
             long fibPrev = 0;
             fib = 1;
             long fibTmp;
-            
+
             // calculate
             for (long i = 2; i <= index; i++){
                 fibTmp = fibPrev + fib;
@@ -50,12 +62,14 @@ public class Fibonacci implements Task {
                 fib = (int) fibTmp;
             }
         }
-        
+
         //if (Sys.DEBUG) { Sys.debug("fibonacci["+minIndex+"] % " + modulus + " = " + fib); }
+
+        return fib;
     }
 
     @Override
     public String toString() {
-        return "Fibonacci with index in [" + minIndex + ", " + (2 * ((long) minIndex)) + "]";
+        return index + "th Fibonacci number";
     }
 }

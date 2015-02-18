@@ -5,21 +5,17 @@ import java.io.*;
 
 /**
  * Handles indicators average, min, max, percentile time of idle, wait, dequeue, processing,
- * grossProcessing, service.
+ * grossProcessing, service and arrival diff.
  *
  * FEATURES:
  *
  * - Records timings (inherited from Raw stat)
  * - Calculate indicators
  * - Print out indicators (to console)
- *
- * TODO:
- *
- * - May replace protected field access of Raw with getters
  */ 
 public class Indicators extends Raw{
     // indicators calculated by calculateIndicator
-    private Indicator idle, wait, dequeue, processing, grossProcessing, service;
+    private Indicator idle, wait, dequeue, processing, grossProcessing, service, arrivalDiff;
 
     /**
      * Struct that holds the following indicators of a sample: average value, min/max and Nth
@@ -52,7 +48,7 @@ public class Indicators extends Raw{
      * Calculate statistics.
      */
     @Override
-    public void process() throws IOException{
+    public void postProcess() throws IOException{
         calculateTimings();
         calculateIndicators();
         printOutIndicators();
@@ -63,12 +59,13 @@ public class Indicators extends Raw{
      * See Raw.calculateTimings() for more details.
      */
     protected void calculateIndicators() {
-        idle = calculateIndicatorOf("idle time", idleList);
-        wait = calculateIndicatorOf("wait time", waitList);
-        dequeue = calculateIndicatorOf("dequeue time", dequeueList);
-        processing = calculateIndicatorOf("processing time", processingList);
-        grossProcessing = calculateIndicatorOf("gross processing time", grossProcessingList);
-        service = calculateIndicatorOf("service time", serviceList);
+        idle = calculateIndicatorOf("idle time", getIdleList());
+        wait = calculateIndicatorOf("wait time", getWaitList());
+        dequeue = calculateIndicatorOf("dequeue time", getDequeueList());
+        processing = calculateIndicatorOf("processing time", getProcessingList());
+        grossProcessing = calculateIndicatorOf("gross processing time", getGrossProcessingList());
+        service = calculateIndicatorOf("service time", getServiceList());
+        arrivalDiff = calculateIndicatorOf("arrival diff", getArrivalDiffList());
     }
 
     protected void printOutIndicators() {
@@ -79,6 +76,7 @@ public class Indicators extends Raw{
         System.out.println("  " + processing);
         System.out.println("  " + grossProcessing);
         System.out.println("  " + service);
+        System.out.println("  " + arrivalDiff);
     }
 
     protected Indicator calculateIndicatorOf(String name, List<Long> sample) {
