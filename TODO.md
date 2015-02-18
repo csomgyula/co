@@ -1,20 +1,21 @@
 TODO
 ==
 
-Updated: 2015.02.18.
+Updated: 2015.02.19.
 
-* Correction Scheme (described in the paper)
+* Argument handling in main method
 
 Backlog
 --
 
-* Argument handling in main method
 * Document experimental results
+* Rethink warm up logic
 
 DONE
 --
 
+* Correction Scheme (described in the paper)
 * Benchmark runner
 * Load interface, Steady load, Poisson process load
 * Task interface, Counter task, Fibonacci task, some support against dead code elimination
-* Stat interface, Raw stat (idle, wait, dequeue, (gross)processing, service, arrival diffs), Indicator stat (min, max, avg, percentile)
+* Stat interface, Raw stat (idle, wait, dequeue, (gross)processing, service, arrival diffs), Indicator stat (min, max, avg, 99% percentile)

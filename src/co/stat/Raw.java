@@ -17,13 +17,13 @@ import java.util.List;
  *
  * - Records timings (inherited from Recording)
  * - Calculates various timings: idle, wait, dequeue, processing, grossProcessing, service, arrival
- *   diff time
+ *   diff time and calculated service time as per the correction scheme proposed in the paper
  * - Writes the data out to a CSV file, for further analysis
  */
 public class Raw extends Recording {
     // statistics calculated by calculateTimings
     private List<Long> idleList, waitList, dequeueList, processingList, grossProcessingList,
-            serviceList, arrivalDiffList;
+            serviceList, arrivalDiffList, calculatedServiceList;
     /**
      * Calculate statistics.
      */
@@ -117,6 +117,20 @@ public class Raw extends Recording {
             if (i > 0)
                 arrivalDiffList.add(arrivalDiff);
         }
+
+        calculateServiceTimesByTheCorrectionScheme();
+    }
+
+    /**
+     * Calculated service times from arrival- and processing times by the correction scheme
+     * proposed in the paper. See:
+     *
+     * - CorrectionScheme
+     * - <https://github.com/csomgyula/co/blob/master/paper.md>
+     */
+    protected void calculateServiceTimesByTheCorrectionScheme() {
+        calculatedServiceList = new CorrectionScheme().calculatedServiceTimes(getArrivalList(),
+                getProcessingList());
     }
 
     /**
@@ -182,6 +196,10 @@ public class Raw extends Recording {
 
     public List<Long> getArrivalDiffList() {
         return arrivalDiffList;
+    }
+
+    public List<Long> getCalculatedServiceList() {
+        return calculatedServiceList;
     }
 
     @Override

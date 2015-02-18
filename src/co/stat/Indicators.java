@@ -4,8 +4,12 @@ import java.util.*;
 import java.io.*;
 
 /**
- * Handles indicators average, min, max, percentile time of idle, wait, dequeue, processing,
- * grossProcessing, service and arrival diff.
+ * Handles indicators, ie. average/min/max/percentile time of idle, wait, dequeue, processing,
+ * grossProcessing, service, arrival diff and also the calculated service time as per the paper. For
+ * the latter see:
+ *
+ * - CorrectionScheme
+ * - <https://github.com/csomgyula/co/blob/master/paper.md>
  *
  * FEATURES:
  *
@@ -15,7 +19,8 @@ import java.io.*;
  */ 
 public class Indicators extends Raw{
     // indicators calculated by calculateIndicator
-    private Indicator idle, wait, dequeue, processing, grossProcessing, service, arrivalDiff;
+    private Indicator idle, wait, dequeue, processing, grossProcessing, service, arrivalDiff,
+        calculatedService;
 
     /**
      * Struct that holds the following indicators of a sample: average value, min/max and Nth
@@ -55,8 +60,20 @@ public class Indicators extends Raw{
     }
         
     /**
-     * Calculate indicators for the following times: wait, dequeue, processing, grossProcessing.
-     * See Raw.calculateTimings() for more details.
+     * Calculate indicators for the following times:
+     *
+     * - wait
+     * - dequeue
+     * - processing
+     * - grossProcessing
+     * - service
+     * - arrival diff
+     * - service times calculated from arrivals and processing times
+     *
+     * See Raw.calculateTimings() for more details and especially for the latter see:
+     *
+     * - CorrectionScheme
+     * - <https://github.com/csomgyula/co/blob/master/paper.md>
      */
     protected void calculateIndicators() {
         idle = calculateIndicatorOf("idle time", getIdleList());
@@ -66,18 +83,24 @@ public class Indicators extends Raw{
         grossProcessing = calculateIndicatorOf("gross processing time", getGrossProcessingList());
         service = calculateIndicatorOf("service time", getServiceList());
         arrivalDiff = calculateIndicatorOf("arrival diff", getArrivalDiffList());
+        calculatedService = calculateIndicatorOf("calculated service time", getCalculatedServiceList());
     }
 
     protected void printOutIndicators() {
         System.out.println("Indicators:");
+        System.out.println("  " + service);
+        System.out.println("  " + calculatedService);
+        System.out.println("  " + processing);
+        System.out.println("---------------------------------------------------------------------" +
+            "------------------------------------------------");
         System.out.println("  " + idle);
         System.out.println("  " + wait);
         System.out.println("  " + dequeue);
-        System.out.println("  " + processing);
         System.out.println("  " + grossProcessing);
-        System.out.println("  " + service);
         System.out.println("  " + arrivalDiff);
     }
+
+
 
     protected Indicator calculateIndicatorOf(String name, List<Long> sample) {
         Indicator indicator = new Indicator(name);
