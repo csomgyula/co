@@ -10,6 +10,9 @@ import java.util.List;
  *
  * See: <https://github.com/csomgyula/co/blob/master/paper.md>
  *
+ * FEATURES:
+ *
+ * - Calculates estimated service times by the algorithm proposed in the paper (called by Stat)
  */
 public class CorrectionScheme {
 

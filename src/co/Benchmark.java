@@ -30,6 +30,7 @@ public class Benchmark {
     private final Load load;
     private final Task task;
     private final int requestCount;
+    private final Recording recording;
     private final Stat stat;
     private final int warmupCount;
 
@@ -45,6 +46,7 @@ public class Benchmark {
         this.requestCount = requestCount;
         this.stat = stat;
         this.warmupCount = warmupCount;
+        this.recording = new Recording();
     }
     
     /**
@@ -84,7 +86,7 @@ public class Benchmark {
             
             // the first runs are warm up ones, only record stats if warm up is over
             if (processedCount > warmupCount) {
-                stat.record(arrivalNs, startedNs, finishedNs, payload);
+                recording.add(arrivalNs, startedNs, finishedNs, payload);
             }
         }
 
@@ -123,15 +125,13 @@ public class Benchmark {
         Load load = new co.load.Steady(4100, TimeUnit.MICROSECONDS);
         // Load load = new co.load.Exponential(900, TimeUnit.MICROSECONDS);
 
-        Stat stat = new co.stat.Indicators();
-        // Stat stat = new co.stat.Raw();
+        Stat stat = new Stat();
 
         Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount, stat);
 
         System.out.println("Load: " + load);
         System.out.println("Task: " + task);
         System.out.println("Request count: " + requestCount);
-        System.out.println("Stat: " + stat);
 
         // run benchmark
         System.out.print("\nBenchmarking... ");
@@ -139,6 +139,6 @@ public class Benchmark {
         System.out.println("done in " + runTime / 1_000_000 + " ms\n");
 
         // post process stats
-        stat.postProcess();
+        stat.process(benchmark.recording, true);
     }   
 }

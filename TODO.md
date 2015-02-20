@@ -3,14 +3,13 @@ TODO
 
 Updated: 2015.02.19.
 
-* Split Stat by factoring out Recording from Stat => Benchmark run will only depend on Recording
+* Rethink warm up logic
 * Argument handling in main method
 
 Backlog
 --
 
 * Document experimental results
-* Rethink warm up logic
 
 DONE
 --

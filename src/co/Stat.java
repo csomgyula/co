@@ -1,26 +1,30 @@
 package co;
 
+import co.stat.Indicators;
+import co.stat.Raw;
+
 /**
- * Represents the statistical logic.
+ * Process statistics.
  *
  * FEATURES:
  *
- * - Records timings (recorded by the processing thread(s))
- * - Process (calculate, print out, save, etc.) statistics
+ * - Calculate Raw statistics
+ * - Calculate Indicators
  */
-public interface Stat {
-
+public class Stat {
     /**
-     * Record the given times: the arrival of the request and the start/finish time of its
-     * processing.
-     *
-     * Passing in the payload object is just a trick to prevent dead code elimination. See the
-     * description of the Task object for more.
+     * Process statistics after the benchmark execution is done.
      */
-    public void record(long arrivalNs, long startNs, long finishNs, Object payload);
+    public void process(Recording recording, boolean export) throws Exception {
+        Raw raw = new Raw(recording);
+        raw.calculate();
 
-    /**
-     * Process (calculate, print out, save, etc.) statistics after the benchmark execution is done.
-     */
-    public void postProcess() throws Exception;
+        Indicators indicators = new Indicators(raw);
+        indicators.calculate();
+        indicators.printOut();
+
+        if (export) {
+            raw.toCSV("raw_stat.csv");
+        }
+    }
 }

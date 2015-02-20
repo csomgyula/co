@@ -1,5 +1,6 @@
 package co.stat;
 
+import co.Recording;
 import co.Sys;
 
 import java.io.BufferedWriter;
@@ -14,23 +15,21 @@ import java.util.List;
  *
  * FEATURES:
  *
- * - Records timings (inherited from Recording)
  * - Calculates various timings: idle, wait, dequeue, processing, grossProcessing, service, arrival
  *   diff time and calculated service time as per the correction scheme proposed in the paper
  * - Writes the data out to a CSV file, for further analysis
+ *
+ * Each method is called by Stat
  */
-public class Raw extends Recording {
+public class Raw {
+    private Recording recording;
+
     // statistics calculated by calculateTimings
-    private List<Long> idleList, waitList, dequeueList, processingList, grossProcessingList,
-            serviceList, arrivalDiffList, calculatedServiceList;
-    /**
-     * Calculate statistics.
-     */
-    @Override
-    public void postProcess() throws IOException {
-        calculateTimings();
-        toCSV("raw_stat.csv");
-        System.out.println("Raw stat: stats written to raw_stat.csv");
+    private List<Long> idles, waits, dequeues, processings, grossProcessings,
+            services, arrivalDiffs, estimatedServices;
+
+    public Raw(Recording recording) {
+        this.recording = recording;
     }
 
     /**
@@ -69,19 +68,19 @@ public class Raw extends Recording {
      *
      *      arrival diff = arrival - previous arrival
      */
-    protected void calculateTimings() {
-        List<Long> arrivalList = super.getArrivalList(), startList = super.getStartList(),
-                finishList = super.getFinishList();
-        idleList = new ArrayList<>();
-        waitList = new ArrayList<>();
-        dequeueList = new ArrayList<>();
-        processingList = new ArrayList<>();
-        grossProcessingList = new ArrayList<>();
-        serviceList = new ArrayList<>();
-        arrivalDiffList = new ArrayList<>();
+    public void calculate() {
+        List<Long> arrivalList = recording.getArrivals(), startList = recording.getStarts(),
+                finishList = recording.getFinishList();
+        idles = new ArrayList<>();
+        waits = new ArrayList<>();
+        dequeues = new ArrayList<>();
+        processings = new ArrayList<>();
+        grossProcessings = new ArrayList<>();
+        services = new ArrayList<>();
+        arrivalDiffs = new ArrayList<>();
 
         long arrival, prevArrival = 0, arrivalDiff = 0, start, finish = Long.MIN_VALUE, prevFinish,
-                idle, wait, dequeue, processing, processing2, total;
+                idle, wait, dequeue, processing, grossProcessing, total;
 
         int statCount = arrivalList.size();
         for (int i = 0; i < statCount; i++) {
@@ -103,21 +102,21 @@ public class Raw extends Recording {
             prevArrival = arrival;
             wait = idle - dequeue;
             processing = finish - start;
-            processing2 = processing + dequeue;
+            grossProcessing = processing + dequeue;
             total = idle + processing;
 
             // store new stats
-            idleList.add(idle);
-            waitList.add(wait);
-            dequeueList.add(dequeue);
-            processingList.add(processing);
-            grossProcessingList.add(processing2);
-            serviceList.add(total);
+            idles.add(idle);
+            waits.add(wait);
+            dequeues.add(dequeue);
+            processings.add(processing);
+            grossProcessings.add(grossProcessing);
+            services.add(total);
             if (i > 0)
-                arrivalDiffList.add(arrivalDiff);
+                arrivalDiffs.add(arrivalDiff);
         }
 
-        calculateServiceTimesByTheCorrectionScheme();
+        calculateEstimatedServiceList();
     }
 
     /**
@@ -127,18 +126,18 @@ public class Raw extends Recording {
      * - CorrectionScheme
      * - <https://github.com/csomgyula/co/blob/master/paper.md>
      */
-    protected void calculateServiceTimesByTheCorrectionScheme() {
-        calculatedServiceList = new CorrectionScheme().estimateServiceTimes(getArrivalList(),
-                getProcessingList());
+    protected void calculateEstimatedServiceList() {
+        estimatedServices = new CorrectionScheme().estimateServiceTimes(
+                recording.getArrivals(), getProcessings());
     }
 
     /**
      * Writes statistics to the given CSV file.
      */
-    protected void toCSV(String path) throws IOException {
+    public void toCSV(String path) throws IOException {
         File csvFile = new File(path);
-        List<Long> arrivalList = super.getArrivalList(), startList = super.getStartList(),
-                finishList = super.getFinishList();
+        List<Long> arrivalList = recording.getArrivals(), startList = recording.getStarts(),
+                finishList = recording.getFinishList();
 
         try (
                 FileWriter fileWriter = new FileWriter(csvFile);
@@ -148,61 +147,62 @@ public class Raw extends Recording {
                     "arrival;start;finish;idle;wait;dequeue;processing;grossProcessing;service");
             bufferedWriter.newLine();
             int statCount = arrivalList.size();
-            long arrival, start, finish, idle, wait, dequeue, processing, processing2, total;
+            long arrival, start, finish, idle, wait, dequeue, processing, grossProcessing, total;
             for (int i = 0; i < statCount; i++) {
                 arrival = arrivalList.get(i) - Sys.TIME_ZERO;
                 start = startList.get(i) - Sys.TIME_ZERO;
                 finish = finishList.get(i) - Sys.TIME_ZERO;
-                idle = idleList.get(i);
-                dequeue = dequeueList.get(i);
-                wait = waitList.get(i);
-                processing = processingList.get(i);
-                processing2 = grossProcessingList.get(i);
-                total = serviceList.get(i);
+                idle = idles.get(i);
+                dequeue = dequeues.get(i);
+                wait = waits.get(i);
+                processing = processings.get(i);
+                grossProcessing = grossProcessings.get(i);
+                total = services.get(i);
 
                 String timingsString =
                         String.format("%d;%d;%d;%d;%d;%d;%d;%d;%d", arrival, start, finish, idle, wait,
-                                dequeue, processing, processing2, total);
+                                dequeue, processing, grossProcessing, total);
                 bufferedWriter.write(timingsString);
                 bufferedWriter.newLine();
             }
         }
+
+        System.out.println("Raw stat written to " + path);
     }
 
-    public List<Long> getIdleList() {
-        return idleList;
+    public Recording getRecording() {
+        return recording;
     }
 
-    public List<Long> getWaitList() {
-        return waitList;
+    public List<Long> getIdles() {
+        return idles;
     }
 
-    public List<Long> getDequeueList() {
-        return dequeueList;
+    public List<Long> getWaits() {
+        return waits;
     }
 
-    public List<Long> getProcessingList() {
-        return processingList;
+    public List<Long> getDequeues() {
+        return dequeues;
     }
 
-    public List<Long> getGrossProcessingList() {
-        return grossProcessingList;
+    public List<Long> getProcessings() {
+        return processings;
     }
 
-    public List<Long> getServiceList() {
-        return serviceList;
+    public List<Long> getGrossProcessings() {
+        return grossProcessings;
     }
 
-    public List<Long> getArrivalDiffList() {
-        return arrivalDiffList;
+    public List<Long> getServices() {
+        return services;
     }
 
-    public List<Long> getCalculatedServiceList() {
-        return calculatedServiceList;
+    public List<Long> getArrivalDiffs() {
+        return arrivalDiffs;
     }
 
-    @Override
-    public String toString() {
-        return "Raw statistics";
+    public List<Long> getEstimatedServices() {
+        return estimatedServices;
     }
 }

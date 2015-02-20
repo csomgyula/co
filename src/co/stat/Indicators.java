@@ -1,7 +1,6 @@
 package co.stat;
 
 import java.util.*;
-import java.io.*;
 
 /**
  * Handles indicators, ie. average/min/max/percentile time of idle, wait, dequeue, processing,
@@ -13,11 +12,14 @@ import java.io.*;
  *
  * FEATURES:
  *
- * - Records timings (inherited from Raw stat)
  * - Calculate indicators
  * - Print out indicators (to console)
+ *
+ * Each method is called by Stat
  */ 
-public class Indicators extends Raw{
+public class Indicators{
+    private Raw raw;
+
     // indicators calculated by calculateIndicator
     private Indicator idle, wait, dequeue, processing, grossProcessing, service, arrivalDiff,
         calculatedService;
@@ -35,6 +37,25 @@ public class Indicators extends Raw{
             this.name = name;
         }
 
+        protected Indicator(String name, List<Long> sample) {
+            this.name = name;
+
+            // average
+            average = sample.stream().mapToLong((val) -> val).average().getAsDouble();
+
+            // min, max, percentile
+            List<Long> sampleClone = new ArrayList<>(sample);
+            Collections.sort(sampleClone);
+            int size = sampleClone.size();
+
+            min = sampleClone.get(0);
+            max = sampleClone.get(size - 1);
+
+            percentage = 99;
+            int percentageIndex = (int) ((long) percentage * (long) size / 100l);
+            percentile = sampleClone.get(percentageIndex - 1);
+        }
+
         @Override
         public String toString() {
             int MILLION = 1_000_000;
@@ -49,14 +70,8 @@ public class Indicators extends Raw{
         }
     }
 
-    /**
-     * Calculate statistics.
-     */
-    @Override
-    public void postProcess() throws IOException{
-        calculateTimings();
-        calculateIndicators();
-        printOutIndicators();
+    public Indicators(Raw raw) {
+        this.raw = raw;
     }
         
     /**
@@ -75,18 +90,19 @@ public class Indicators extends Raw{
      * - CorrectionScheme
      * - <https://github.com/csomgyula/co/blob/master/paper.md>
      */
-    protected void calculateIndicators() {
-        idle = calculateIndicatorOf("idle time", getIdleList());
-        wait = calculateIndicatorOf("wait time", getWaitList());
-        dequeue = calculateIndicatorOf("dequeue time", getDequeueList());
-        processing = calculateIndicatorOf("processing time", getProcessingList());
-        grossProcessing = calculateIndicatorOf("gross processing time", getGrossProcessingList());
-        service = calculateIndicatorOf("service time", getServiceList());
-        arrivalDiff = calculateIndicatorOf("arrival diff", getArrivalDiffList());
-        calculatedService = calculateIndicatorOf("calculated service time", getCalculatedServiceList());
+    public void calculate() {
+        idle = new Indicator("idle time", raw.getIdles());
+        wait = new Indicator("wait time", raw.getWaits());
+        dequeue = new Indicator("dequeue time", raw.getDequeues());
+        processing = new Indicator("processing time", raw.getProcessings());
+        grossProcessing = new Indicator("gross processing time", raw.getGrossProcessings());
+        service = new Indicator("service time", raw.getServices());
+        arrivalDiff = new Indicator("arrival diff", raw.getArrivalDiffs());
+        calculatedService = new Indicator("calculated service time",
+                raw.getEstimatedServices());
     }
 
-    protected void printOutIndicators() {
+    public void printOut() {
         String sep = "---------------------------------------------------------------------" +
                 "------------------------------------------------";
         System.out.println("Indicators:");
@@ -102,33 +118,5 @@ public class Indicators extends Raw{
         System.out.println("  " + idle);
         System.out.println("  " + wait);
         System.out.println("  " + dequeue);
-    }
-
-
-
-    protected Indicator calculateIndicatorOf(String name, List<Long> sample) {
-        Indicator indicator = new Indicator(name);
-
-        // average
-        indicator.average = sample.stream().mapToLong((val) -> val).average().getAsDouble();
-
-        // min, max, percentile
-        List<Long> sampleClone = new ArrayList<>(sample);
-        Collections.sort(sampleClone);
-        int size = sampleClone.size();
-
-        indicator.min = sampleClone.get(0);
-        indicator.max = sampleClone.get(size - 1);
-
-        indicator.percentage = 99;
-        int percentageIndex = (int) ((long) indicator.percentage * (long) size / 100l);
-        indicator.percentile = sampleClone.get(percentageIndex - 1);
-
-        return indicator;
-    }
-
-    @Override
-    public String toString() {
-        return "Indicator statistics";
     }
 }
