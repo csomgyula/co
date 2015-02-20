@@ -120,7 +120,7 @@ public class Benchmark {
         int requestCount = 1000;
         int warmupCount = 1000;
 
-        Load load = new co.load.Steady(15000, TimeUnit.MICROSECONDS);
+        Load load = new co.load.Steady(4100, TimeUnit.MICROSECONDS);
         // Load load = new co.load.Exponential(900, TimeUnit.MICROSECONDS);
 
         Stat stat = new co.stat.Indicators();

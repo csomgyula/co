@@ -3,6 +3,7 @@ TODO
 
 Updated: 2015.02.19.
 
+* Split Stat by factoring out Recording from Stat => Benchmark run will only depend on Recording
 * Argument handling in main method
 
 Backlog
