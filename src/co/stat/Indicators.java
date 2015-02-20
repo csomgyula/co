@@ -93,11 +93,13 @@ public class Indicators extends Raw{
         System.out.println("  " + processing);
         System.out.println("---------------------------------------------------------------------" +
             "------------------------------------------------");
+        System.out.println("  " + arrivalDiff);
         System.out.println("  " + idle);
         System.out.println("  " + wait);
         System.out.println("  " + dequeue);
+        System.out.println("  " + processing);
         System.out.println("  " + grossProcessing);
-        System.out.println("  " + arrivalDiff);
+        System.out.println("  " + service);
     }
 
 

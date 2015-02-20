@@ -1,6 +1,5 @@
 package co.stat;
 
-import co.Stat;
 import co.Sys;
 
 import java.io.BufferedWriter;
@@ -129,7 +128,7 @@ public class Raw extends Recording {
      * - <https://github.com/csomgyula/co/blob/master/paper.md>
      */
     protected void calculateServiceTimesByTheCorrectionScheme() {
-        calculatedServiceList = new CorrectionScheme().calculatedServiceTimes(getArrivalList(),
+        calculatedServiceList = new CorrectionScheme().estimateServiceTimes(getArrivalList(),
                 getProcessingList());
     }
 

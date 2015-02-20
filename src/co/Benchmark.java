@@ -114,13 +114,13 @@ public class Benchmark {
         // init benchmark
         Sys.timeZero();
 
-        Task task = new co.task.Fibonacci(1_000_000);
+        Task task = new co.task.Fibonacci(5_000_000);
         // Task task = new co.task.Counter();
 
         int requestCount = 1000;
         int warmupCount = 1000;
 
-        Load load = new co.load.Steady(2000, TimeUnit.MICROSECONDS);
+        Load load = new co.load.Steady(15000, TimeUnit.MICROSECONDS);
         // Load load = new co.load.Exponential(900, TimeUnit.MICROSECONDS);
 
         Stat stat = new co.stat.Indicators();
