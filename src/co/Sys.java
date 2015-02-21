@@ -14,10 +14,12 @@ import java.util.concurrent.TimeUnit;
 public class Sys{
     public final static long TIME_ZERO;
     public final static boolean DEBUG;
+    public static boolean PRINTOUT;
 
     static { 
         TIME_ZERO = System.nanoTime();
         DEBUG = "t".equals(System.getProperty("debug"));
+        PRINTOUT = true;
     }
     
     /** 
@@ -38,7 +40,16 @@ public class Sys{
                 " [" + message + "]");
         }
     }
-    
+
+    /**
+     * Prints out the message if PRINTOUT is true, otherwise skip.
+     */
+    public static void printOut(String message) {
+        if (PRINTOUT) {
+            System.out.println(message);
+        }
+    }
+
     /**
      * Checks whether the given constraint is true, throws exception if not.
      */

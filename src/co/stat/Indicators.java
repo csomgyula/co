@@ -1,5 +1,7 @@
 package co.stat;
 
+import co.Sys;
+
 import java.util.*;
 
 /**
@@ -105,18 +107,18 @@ public class Indicators{
     public void printOut() {
         String sep = "---------------------------------------------------------------------" +
                 "------------------------------------------------";
-        System.out.println("Indicators:");
-        System.out.println("  " + service);
-        System.out.println("  " + calculatedService);
-        System.out.println("  " + processing);
-        System.out.println(sep);
-        System.out.println("  " + arrivalDiff);
-        System.out.println("  " + grossProcessing);
-        System.out.println("  " + processing);
-        System.out.println("  " + dequeue);
-        System.out.println(sep);
-        System.out.println("  " + idle);
-        System.out.println("  " + wait);
-        System.out.println("  " + dequeue);
+        Sys.printOut("Indicators:");
+        Sys.printOut("  " + service);
+        Sys.printOut("  " + calculatedService);
+        Sys.printOut("  " + processing);
+        Sys.printOut(sep);
+        Sys.printOut("  " + arrivalDiff);
+        Sys.printOut("  " + grossProcessing);
+        Sys.printOut("  " + processing);
+        Sys.printOut("  " + dequeue);
+        Sys.printOut(sep);
+        Sys.printOut("  " + idle);
+        Sys.printOut("  " + wait);
+        Sys.printOut("  " + dequeue);
     }
 }

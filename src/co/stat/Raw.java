@@ -116,7 +116,7 @@ public class Raw {
                 arrivalDiffs.add(arrivalDiff);
         }
 
-        calculateEstimatedServiceList();
+        calculateEstimatedServices();
     }
 
     /**
@@ -126,7 +126,7 @@ public class Raw {
      * - CorrectionScheme
      * - <https://github.com/csomgyula/co/blob/master/paper.md>
      */
-    protected void calculateEstimatedServiceList() {
+    protected void calculateEstimatedServices() {
         estimatedServices = new CorrectionScheme().estimateServiceTimes(
                 recording.getArrivals(), getProcessings());
     }
@@ -134,7 +134,7 @@ public class Raw {
     /**
      * Writes statistics to the given CSV file.
      */
-    public void toCSV(String path) throws IOException {
+    public void toCSV(String path) {
         File csvFile = new File(path);
         List<Long> arrivalList = recording.getArrivals(), startList = recording.getStarts(),
                 finishList = recording.getFinishList();
@@ -166,8 +166,11 @@ public class Raw {
                 bufferedWriter.newLine();
             }
         }
+        catch (IOException e) {
+            Sys.debug(e.getMessage());
+        }
 
-        System.out.println("Raw stat written to " + path);
+        Sys.printOut("Raw stat written to " + path);
     }
 
     public Recording getRecording() {

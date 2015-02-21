@@ -11,11 +11,6 @@ import java.util.List;
  * - Records timings (called by Benchmark)
  */
 public class Recording {
-    /**
-     * Payload is used to avoid dead code elimination. See the description of the Task object for
-     * more.
-     */
-    public Object payload;
 
     // statistics recorded by the benchmark
     private List<Long> arrivals, starts, finishList;
@@ -36,11 +31,10 @@ public class Recording {
      * Payload is used to avoid dead code elimination. See the description of the Task object for
      * more.
      */
-    public void add(long arrivalNs, long startNs, long finishNs, Object payload) {
+    public void add(long arrivalNs, long startNs, long finishNs) {
         arrivals.add(arrivalNs);
         starts.add(startNs);
         finishList.add(finishNs);
-        this.payload = payload;
     }
 
     public List<Long> getArrivals() {

@@ -1,10 +1,9 @@
 TODO
 ==
 
-Updated: 2015.02.19.
+Updated: 2015.02.21.
 
-* Rethink warm up logic
-* Argument handling in main method
+* Implement experiments (benchmark suite and suite stats)
 
 Backlog
 --

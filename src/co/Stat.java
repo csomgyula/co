@@ -15,7 +15,7 @@ public class Stat {
     /**
      * Process statistics after the benchmark execution is done.
      */
-    public void process(Recording recording, boolean export) throws Exception {
+    public void process(Recording recording, boolean export) {
         Raw raw = new Raw(recording);
         raw.calculate();
 

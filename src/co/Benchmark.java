@@ -9,68 +9,92 @@ import java.util.concurrent.TimeUnit;
  * 1. schedule the execution according to the given load distribution
  * 2. execute the given task
  * 3. measure the execution time and record it
- * 
+ *
+ * Before entering the loop warms up. After executing the loop calculate statistics.
+ *
  * FEATURES:
  *
- *  - Warms up the environment 
  *  - Schedule-run-measure
- *  - Configurable 
- *    - warm up count
- *    - request count
- *    - task represented by the Task interface
- *    - load distribution represented by the Load interface
- *  
- * DESIGN: 
- *
- *  ![](http://yuml.me/d856bbd5)
- *
- * TODO: Rethink warm up logic
+ *  - Warms up the environment
+ *  - Some support to prevent from dead code elimination (see Task interface for more)
+ *  - Configurable Task, Load distribution, warm up- and request count
  */
 public class Benchmark {
     private final Load load;
     private final Task task;
     private final int requestCount;
-    private final Recording recording;
-    private final Stat stat;
     private final int warmupCount;
+    private final boolean exportRawStat;
 
     /** 
      * Initializes the benchmark with the given arguments.
      */
-    public Benchmark(Load load, Task task, int requestCount, int warmupCount, Stat stat) {
-        Sys.assertTrue(load != null && task != null && requestCount >= 0 && stat != null && 
-            warmupCount >= 0);
+    public Benchmark(Load load, Task task, int requestCount, int warmupCount,
+                     boolean exportRawStat) {
+        Sys.assertTrue(load != null && task != null && requestCount >= 0 && warmupCount >= 0);
         
         this.load = load;
         this.task = task;
         this.requestCount = requestCount;
-        this.stat = stat;
         this.warmupCount = warmupCount;
-        this.recording = new Recording();
+        this.exportRawStat = exportRawStat;
     }
-    
+
+    /**
+     * Payload is used to avoid dead code elimination. See the description of the Task object for
+     * more.
+     */
+    public Object payload;
+
+    public void run() {
+        // init benchmark
+        Sys.timeZero();
+
+        // configuration info
+        Sys.printOut("Load: " + load);
+        Sys.printOut("Task: " + task);
+        Sys.printOut("Warmup count: " + requestCount);
+        Sys.printOut("Request count: " + requestCount);
+
+        Sys.printOut("\nBenchmarking... ");
+
+        Recording recording;
+
+        // warmup
+        long warmupStarted = System.nanoTime();
+        recording = new Recording();
+        run("warmup", warmupCount, recording);
+
+        // benchmark
+        long benchmarkStarted = System.nanoTime();
+        recording = new Recording();
+        run("benchmark", requestCount, recording);
+        long benchmarkFinished = System.nanoTime();
+
+        // runtime info
+        long runTime = benchmarkFinished - benchmarkStarted, fullRuntime = benchmarkFinished -
+                warmupStarted;
+        Sys.printOut("done in " + runTime / 1_000_000 + " (" + fullRuntime / 1_000_000
+                + ") " + " ms\n");
+
+        // stat
+        Stat stat = new Stat();
+        stat.process(recording, exportRawStat);
+    }
+
     /**
      * The main benchmarking method.
      */
-    public long run() {
-        Sys.debug("benchmark started");
+    protected long run(String name, int requestCount, Recording recording) {
+        Sys.debug(name + " started");
         
-        long startedNs, finishedNs = 0, arrivalNs, benchmarkStartedNs = 0l;
+        long startedNs, finishedNs = Long.MIN_VALUE, arrivalNs, benchmarkStartedNs = 0l;
         int processedCount = 0;
-        Object payload;
 
         arrivalNs = System.nanoTime();
-
-        while(processedCount < requestCount + warmupCount) {
-            // if (Sys.DEBUG) { Sys.debug("processing: " + (processedCount - warmupCount)); }
-            
-            // after warm up reset arrival time to now
-            // this has the effect as if we flushed (empty) the request queue since from now on 
-            // each requests' arrival time will  be in the future
-            if (processedCount == warmupCount) {
-                benchmarkStartedNs = System.nanoTime();
-                arrivalNs = System.nanoTime();
-            }
+        benchmarkStartedNs = System.nanoTime();
+        while(processedCount < requestCount) {
+            // if (Sys.DEBUG) { Sys.debug("processing: " + processedCount); }
             
             // schedule
             arrivalNs += load.nextRelativeTimeNs();
@@ -84,19 +108,19 @@ public class Benchmark {
             // increment processed count
             processedCount++;
             
-            // the first runs are warm up ones, only record stats if warm up is over
-            if (processedCount > warmupCount) {
-                recording.add(arrivalNs, startedNs, finishedNs, payload);
-            }
+            // record stats
+            recording.add(arrivalNs, startedNs, finishedNs);
         }
 
-        Sys.debug("benchmark finished");
+        Sys.debug(name + " finished");
 
         return System.nanoTime() - benchmarkStartedNs;
     }
     
     /**
      * Sleeps until the given arrival time. The time must be in line with System.nanoTime().
+     *
+     * TODO: may move to Sys
      */
     protected void sleepUntilNextRequest(long arrivalNs) {
         long nowNs;
@@ -113,8 +137,8 @@ public class Benchmark {
     
     
     public static void main(String[] args) throws Exception{
-        // init benchmark
-        Sys.timeZero();
+        Load load = new co.load.Steady(4100, TimeUnit.MICROSECONDS);
+        // Load load = new co.load.Exponential(900, TimeUnit.MICROSECONDS);
 
         Task task = new co.task.Fibonacci(5_000_000);
         // Task task = new co.task.Counter();
@@ -122,23 +146,12 @@ public class Benchmark {
         int requestCount = 1000;
         int warmupCount = 1000;
 
-        Load load = new co.load.Steady(4100, TimeUnit.MICROSECONDS);
-        // Load load = new co.load.Exponential(900, TimeUnit.MICROSECONDS);
+        boolean exportRawStat = true, info = true;
 
-        Stat stat = new Stat();
-
-        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount, stat);
-
-        System.out.println("Load: " + load);
-        System.out.println("Task: " + task);
-        System.out.println("Request count: " + requestCount);
+        // Sys.PRINTOUT = false;
+        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount, exportRawStat);
 
         // run benchmark
-        System.out.print("\nBenchmarking... ");
-        long runTime = benchmark.run();
-        System.out.println("done in " + runTime / 1_000_000 + " ms\n");
-
-        // post process stats
-        stat.process(benchmark.recording, true);
+        benchmark.run();
     }   
 }
