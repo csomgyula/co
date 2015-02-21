@@ -170,7 +170,7 @@ public class BenchmarkRaw {
             Sys.debug(e.getMessage());
         }
 
-        Sys.printOut("Raw stat written to " + path);
+        Sys.printlnOut("Raw stat written to " + path);
     }
 
     public BenchmarkRecording getRecording() {

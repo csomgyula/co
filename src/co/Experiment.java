@@ -97,7 +97,7 @@ public abstract class Experiment {
         boolean exportRawStat = false;
 
         // main loop
-        while (time < maxTime) {
+        while (time <= maxTime) {
             // run the benchmark under the given load
             benchmarkIndicators = new Benchmark(
                     getLoad(time, timeUnit), task, requestCount, warmupCount, benchmarkStat,
@@ -115,6 +115,8 @@ public abstract class Experiment {
 
             // run gc
             System.gc();
+
+            Sys.printlnOut("");
         }
 
         // stats

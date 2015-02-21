@@ -44,9 +44,18 @@ public class Sys{
     /**
      * Prints out the message if PRINTOUT is true, otherwise skip.
      */
-    public static void printOut(String message) {
+    public static void printlnOut(String message) {
         if (PRINTOUT) {
             System.out.println(message);
+        }
+    }
+
+    /**
+     * Prints out the message if PRINTOUT is true, otherwise skip.
+     */
+    public static void printOut(String message) {
+        if (PRINTOUT) {
+            System.out.print(message);
         }
     }
 

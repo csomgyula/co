@@ -44,15 +44,15 @@ public class ExperimentRecording {
 
     public void printOut() {
         // header
-        Sys.printOut("99% percentiles in ms");
-        Sys.printOut(String.format("%14s;%14s;%14s;%14s",
+        Sys.printlnOut("99% percentiles in ms");
+        Sys.printlnOut(String.format("%14s;%14s;%14s;%14s",
                 "load", "service", "processing", "est. service"));
 
         // body
         int size = servicePercentiles.size();
         int MILLION = 1_000_000;
         for (int i = 0; i<size; i++) {
-            Sys.printOut(String.format("%14f;%14f;%14f;%14f",
+            Sys.printlnOut(String.format("%14f;%14f;%14f;%14f",
                     (double) times.get(i) / MILLION,
                     (double) servicePercentiles.get(i) / MILLION,
                     (double) processingPercentiles.get(i) / MILLION,

@@ -52,17 +52,17 @@ public class SteadyFibonacci extends Experiment {
         SteadyFibonacci experiment = new SteadyFibonacci();
 
         // init Load
-        experiment.setMinTime(800);
-        experiment.setMaxTime(1800);
-        experiment.setDeltaTime(100);
+        experiment.setMinTime(1000);
+        experiment.setMaxTime(1100);
+        experiment.setDeltaTime(10);
         experiment.setTimeUnit(TimeUnit.MICROSECONDS);
 
         // init Task
         experiment.setFibonacciIndex(1_000_000);
 
         // init Benchmark counts
-        experiment.setRequestCount(1000);
         experiment.setWarmupCount(1000);
+        experiment.setRequestCount(10000);
 
         // run experiment
         experiment.run();

@@ -59,19 +59,17 @@ public class BenchmarkIndicators {
     public void printOut() {
         String sep = "---------------------------------------------------------------------" +
                 "------------------------------------------------";
-        Sys.printOut("Indicators:");
-        Sys.printOut("  " + service);
-        Sys.printOut("  " + estimatedService);
-        Sys.printOut("  " + processing);
-        Sys.printOut(sep);
-        Sys.printOut("  " + arrivalDiff);
-        Sys.printOut("  " + grossProcessing);
-        Sys.printOut("  " + processing);
-        Sys.printOut("  " + dequeue);
-        Sys.printOut(sep);
-        Sys.printOut("  " + idle);
-        Sys.printOut("  " + wait);
-        Sys.printOut("  " + dequeue);
+        Sys.printlnOut("Indicators:");
+        Sys.printlnOut("  " + service);
+        Sys.printlnOut("  " + estimatedService);
+        Sys.printlnOut("  " + processing);
+        Sys.printlnOut(sep);
+        Sys.printlnOut("  " + arrivalDiff);
+        Sys.printlnOut("  " + grossProcessing);
+        Sys.printlnOut(sep);
+        Sys.printlnOut("  " + idle);
+        Sys.printlnOut("  " + wait);
+        Sys.printlnOut("  " + dequeue);
     }
 
     public Indicator getIdle() {

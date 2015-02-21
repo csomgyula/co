@@ -74,12 +74,12 @@ public class Benchmark {
         Sys.timeZero();
 
         // configuration info
-        Sys.printOut("Load: " + load);
-        Sys.printOut("Task: " + task);
-        Sys.printOut("Warmup count: " + requestCount);
-        Sys.printOut("Request count: " + requestCount);
+        Sys.printlnOut("Load: " + load);
+        Sys.printlnOut("Task: " + task);
+        Sys.printlnOut("Warmup count: " + warmupCount);
+        Sys.printlnOut("Request count: " + requestCount);
 
-        Sys.printOut("\nBenchmarking... ");
+        Sys.printOut("Benchmarking... ");
 
         BenchmarkRecording recording;
 
@@ -97,8 +97,8 @@ public class Benchmark {
         // runtime info
         long runTime = benchmarkFinished - benchmarkStarted, fullRuntime = benchmarkFinished -
                 warmupStarted;
-        Sys.printOut("done in " + runTime / 1_000_000 + " (" + fullRuntime / 1_000_000
-                + ") " + " ms\n");
+        Sys.printlnOut("done in " + runTime / 1_000_000 + " (" + fullRuntime / 1_000_000
+                + ") " + " ms");
 
         // stat
         return stat.process(recording, exportRawStat);
