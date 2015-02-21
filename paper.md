@@ -133,18 +133,15 @@ The correction scheme takes the following assumptions:
 
 **(iii) ordered**: Requests are processed in arrival order, that is First-In-First-Out;
 
-**(iv) greedy**: Request processing threads do not go idle unless the request queue is empty.
+**(iv) continous**: Request processing threads do not go idle unless the request queue is empty.
 
-Notes: 
+Note that in many situations the above assumptions are not likey. There are processing schemes where they simply do not hold - like priority-based scheduling, shortest-task-first scheduling, etc. (see Wikipedia [3] for more details and examples). However in simple benchmarking schemes the above assumptions are quite natural. 
 
-* In many situations the above assumptions are not likey. There are processing schemes where they simply do not hold - like priority-based scheduling, shortest-task-first scheduling, etc. (see Wikipedia [3] for more details and examples). However in simple benchmarking schemes the above assumptions are quite natural.
-* Assumption (ii) and (iii) is redundant. The ordering property is a stronger property than atomicity: atomicity can be derived from the ordering property.
-
-Our last assumption:
+The last assumption:
 
 **6 Assumption: dequeueing time is negligable**, where dequeueing time means the difference between the time when the request became ready (eligable for processing) and the time when its processing started. 
 
-From atomicity we we can conclude the following theorem:
+From atomicity we can conclude the following theorem:
 
 **7 Theorem: If start times of processing are known, then service times can be calculated as follows**:
 
@@ -213,9 +210,9 @@ I implement a small benchmark suite (not a general purpose one) in order to expe
 
 Currently there are only preliminary results:
 
-* **It is worthless to test under extreme loads**. When average load is higher than average processing time, requests starts queueing, which has bigger impact then Coordinated Omission. Hence the practical range of load is somewhere between the average processing time and the maximum processing time.
-* Within my environment, the runtime overhead is around 0.1 ms and could reach ~1 ms as a max. Hence **dequeueing time might not be negligable** and should be taken into account as well (ie. in the Correction Scheme).
-* **The difference between processing time and "real" latency seems to be higher when the load is higher** (ie. when load is near to the average processing time). This is quite reasonable. For steady loads I've seen 3-4x difference, for Poisson loads even higher ones. However this is currently work in progress...
+* **It is worthless to test under extreme loads**. When average load is higher than average processing time, requests starts queueing, which has bigger impact then Coordinated Omission. Also if the load time is higher then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. Hence the load time is practically somewhere in the range between the average processing time and the maximum processing time.
+* Within my environment, the runtime overhead is around 0.1 ms and could even reach ~1,5 ms on the edge case. Hence **dequeueing time might not be negligable** and should be taken into account as well (ie. in the Correction Scheme).
+* **The difference between processing time and "real" latency seems to be higher when the load is higher** (ie. when load is near to the average processing time). This is quite reasonable. For steady loads I've seen 3-4x difference during high loads, for Poisson loads even higher ones. However this is currently work in progress...
 
 5 References
 --
