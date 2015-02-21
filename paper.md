@@ -210,7 +210,7 @@ I implement a small benchmark suite (not a general purpose one) in order to expe
 
 Currently there are only preliminary results:
 
-* **It is worthless to test under extreme loads**. When average load is higher than average processing time, requests starts queueing, which has bigger impact then Coordinated Omission. Also if the load time is higher then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. Hence the load time is practically somewhere in the range between the average processing time and the maximum processing time.
+* **It is worthless to test under extreme loads**. When average load is higher than average processing time, requests starts queueing, which has bigger impact then Coordinated Omission. Also if the load time is higher then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. Hence a practical load time should be somewhere between the average processing time and the maximum processing time.
 * Within my environment, the runtime overhead is around 0.1 ms and could even reach ~1,5 ms on the edge case. Hence **dequeueing time might not be negligable** and should be taken into account as well (ie. in the Correction Scheme).
 * **The difference between processing time and "real" latency seems to be higher when the load is higher** (ie. when load is near to the average processing time). This is quite reasonable. For steady loads I've seen 3-4x difference during high loads, for Poisson loads even higher ones. However this is currently work in progress...
 
