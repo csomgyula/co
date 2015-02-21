@@ -20,7 +20,7 @@ public class Stat {
     /**
      * Process statistics after benchmark execution is done.
      */
-    public void process(Recording recording, boolean export) {
+    public Indicators process(BenchmarkRecording recording, boolean export) {
         Raw raw = new Raw(recording);
         raw.calculate();
 
@@ -31,5 +31,7 @@ public class Stat {
         if (export) {
             raw.toCSV("raw_stat.csv");
         }
+
+        return indicators;
     }
 }

@@ -24,22 +24,23 @@ public class Indicators{
 
     // indicators calculated by calculateIndicator
     private Indicator idle, wait, dequeue, processing, grossProcessing, service, arrivalDiff,
-        calculatedService;
+        estimatedService;
 
     /**
      * Struct that holds the following indicators of a sample: average value, min/max and Nth
      * percentile.
      */
-    protected class Indicator {
-        protected String name;
-        protected double average, min, max, percentile;
-        protected int percentage;
+    public class Indicator {
+        private String name;
+        private double average, min, max;
+        private long percentile;
+        private int percentage;
 
         public Indicator(String name) {
             this.name = name;
         }
 
-        protected Indicator(String name, List<Long> sample) {
+        public Indicator(String name, List<Long> sample) {
             this.name = name;
 
             // average
@@ -58,6 +59,30 @@ public class Indicators{
             percentile = sampleClone.get(percentageIndex - 1);
         }
 
+        public String getName() {
+            return name;
+        }
+
+        public double getAverage() {
+            return average;
+        }
+
+        public double getMin() {
+            return min;
+        }
+
+        public double getMax() {
+            return max;
+        }
+
+        public long getPercentile() {
+            return percentile;
+        }
+
+        public int getPercentage() {
+            return percentage;
+        }
+
         @Override
         public String toString() {
             int MILLION = 1_000_000;
@@ -67,7 +92,7 @@ public class Indicators{
                     min / MILLION,
                     average / MILLION,
                     percentage,
-                    percentile / MILLION,
+                    ((double) percentile) / MILLION,
                     max / MILLION);
         }
     }
@@ -100,7 +125,7 @@ public class Indicators{
         grossProcessing = new Indicator("gross processing time", raw.getGrossProcessings());
         service = new Indicator("service time", raw.getServices());
         arrivalDiff = new Indicator("arrival diff", raw.getArrivalDiffs());
-        calculatedService = new Indicator("calculated service time",
+        estimatedService = new Indicator("calculated service time",
                 raw.getEstimatedServices());
     }
 
@@ -109,7 +134,7 @@ public class Indicators{
                 "------------------------------------------------";
         Sys.printOut("Indicators:");
         Sys.printOut("  " + service);
-        Sys.printOut("  " + calculatedService);
+        Sys.printOut("  " + estimatedService);
         Sys.printOut("  " + processing);
         Sys.printOut(sep);
         Sys.printOut("  " + arrivalDiff);
@@ -120,5 +145,37 @@ public class Indicators{
         Sys.printOut("  " + idle);
         Sys.printOut("  " + wait);
         Sys.printOut("  " + dequeue);
+    }
+
+    public Indicator getIdle() {
+        return idle;
+    }
+
+    public Indicator getWait() {
+        return wait;
+    }
+
+    public Indicator getDequeue() {
+        return dequeue;
+    }
+
+    public Indicator getProcessing() {
+        return processing;
+    }
+
+    public Indicator getGrossProcessing() {
+        return grossProcessing;
+    }
+
+    public Indicator getService() {
+        return service;
+    }
+
+    public Indicator getArrivalDiff() {
+        return arrivalDiff;
+    }
+
+    public Indicator getEstimatedService() {
+        return estimatedService;
     }
 }

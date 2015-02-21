@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class that handles recordings.
+ * Handles recordings of a Benchmark.
  *
  * FEATURES:
  *
@@ -15,7 +15,7 @@ import java.util.List;
  * - Recording is called by Benchmark during the Benchmark: every time the Benchmark executed the
  *   benchmarked method, it records the timings through this class.
  */
-public class Recording {
+public class BenchmarkRecording {
 
     // statistics recorded by the benchmark
     private List<Long> arrivals, starts, finishList;
@@ -23,7 +23,7 @@ public class Recording {
     /**
      * Initialize this recording.
      */
-    public Recording(){
+    public BenchmarkRecording(){
         arrivals = new ArrayList<>();
         starts = new ArrayList<>();
         finishList = new ArrayList<>();

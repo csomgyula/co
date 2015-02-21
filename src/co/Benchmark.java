@@ -1,5 +1,7 @@
 package co;
 
+import co.stat.Indicators;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -62,9 +64,18 @@ public class Benchmark {
     public Object taskReturnValue;
 
     /**
-     * The main benchmark method. First does warmup, then executes the benchmark.
+     * The main benchmark method. First does warmup, then executes the benchmark. Finally it returns
+     * the indicators of this run.
      */
-    public void run() {
+    public Indicators run() {
+        return run(new Stat());
+    }
+
+    /**
+     * The main benchmark method. First does warmup, then executes the benchmark. Finally it returns
+     * the indicators of this run.
+     */
+    public Indicators run(Stat stat) {
         // init benchmark
         Sys.timeZero();
 
@@ -76,16 +87,16 @@ public class Benchmark {
 
         Sys.printOut("\nBenchmarking... ");
 
-        Recording recording;
+        BenchmarkRecording recording;
 
         // warmup
         long warmupStarted = System.nanoTime();
-        recording = new Recording();
+        recording = new BenchmarkRecording();
         run("warmup", warmupCount, recording);
 
         // benchmark
         long benchmarkStarted = System.nanoTime();
-        recording = new Recording();
+        recording = new BenchmarkRecording();
         run("benchmark", requestCount, recording);
         long benchmarkFinished = System.nanoTime();
 
@@ -96,14 +107,13 @@ public class Benchmark {
                 + ") " + " ms\n");
 
         // stat
-        Stat stat = new Stat();
-        stat.process(recording, exportRawStat);
+        return stat.process(recording, exportRawStat);
     }
 
     /**
      * The benchmarking method that processes both the warm up cycle and the real benchmark.
      */
-    protected long run(String name, int requestCount, Recording recording) {
+    protected long run(String name, int requestCount, BenchmarkRecording recording) {
         Sys.debug(name + " started");
         
         long startedNs, finishedNs = Long.MIN_VALUE, arrivalNs, benchmarkStartedNs = 0l;
