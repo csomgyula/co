@@ -11,22 +11,26 @@ import java.util.Random;
  * FEATURES:
  *
  * - It calculates the Nth Fibonacci number
- *
- * NOTE:
- *
- * - The class guards against dead code elimination, however since a benchmark will always compute
- *   the same number a very sophisticated compiler might falsely optimize this code (kinda
- *   sophisticated form of constant folding). This case use the RandomizedFibonacci task.
+ * - The class guards against dead code elimination and constant folding: return value guards
+ *   against dead code elimination (see Task interface and Benchmark for more); index field is made
+ *   public in order to guard against constant folding.
+ * - However since a benchmark will always compute the same number, a very sophisticated compiler
+ *   might falsely optimize this code (kinda sophisticated form of constant folding). This case use
+ *   the RandomizedFibonacci task.
  *
  *   You can simply test whether the compiler does or not constant folding. Just rerun the task with
  *   different indices. If the execution time remains the same, then you can suspect constant
  *   folding.
  */ 
 public class Fibonacci implements Task {
-    private int index;
+    /**
+     * The index value, ie. `execute` will calculate the index'th Fibonacci number. Field is made
+     * public in order to guard against constant folding.
+     */
+    public int index;
 
     /**
-     * Initializes the Fibonacci task with the given (minimal) index and modulus.
+     * Initializes the Fibonacci task with the given index.
      */
     public Fibonacci(int index) {
         Sys.assertTrue(index >= 0);
@@ -36,6 +40,9 @@ public class Fibonacci implements Task {
 
     /**
      * Executes the logic represented by the Task, this case it calculates the Nth Fibonacci number.
+     *
+     * The return value is just a trick in order to avoid dead code elimination. See the Task
+     * interface for more.
      */
     @Override
     public Object execute() {

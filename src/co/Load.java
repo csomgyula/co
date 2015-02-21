@@ -1,7 +1,15 @@
 package co;
 
 /**
- * Represent the load generator which determines when new requests arrive.
+ * Represents the load generator which determines when new requests arrive.
+ *
+ * FEATURES:
+ *
+ * - Should return the time diff between the current request and the next one
+ *
+ * RELATIONS:
+ *
+ * - The Load interface is called by the Benchmark when scheduling the next execution.
  */
 public interface Load {
 

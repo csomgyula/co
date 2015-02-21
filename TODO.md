@@ -8,6 +8,7 @@ Updated: 2015.02.21.
 Backlog
 --
 
+* Q&A - tests (mainly for Stat calculations) 
 * Document experimental results
 
 DONE

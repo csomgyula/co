@@ -11,12 +11,12 @@ import java.util.Random;
  *
  * - It calculates the Nth Fibonacci number, where N is chosen randomly between a given minIndex 
  *   and 2 * minIndex. That is: minIndex <= N < 2 * minIndex 
- * - Randomization is used in order to avoid (JIT) compiler optimization, that might be possible
+ * - Randomization is used in order to avoid compiler optimization, that might be possible
  *   if the benchmark calculated the same index always.
  *
  * TODO:
  *
- * - Perhaps a smaller, 2-length interval, ie. [minIndex, minIndex + 1] would do a better job.
+ * - Perhaps a smaller interval, ie. [minIndex, minIndex + K] would do a better job.
  */
 public class RandomizedFibonacci implements Task {
     private int minIndex;

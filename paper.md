@@ -142,7 +142,7 @@ Notes:
 
 Our last assumption:
 
-**6 Assumption: dequeueing time is negligable**
+**6 Assumption: dequeueing time is negligable**, where dequeueing time means the difference between the time when the request became ready (eligable for processing) and the time when its processing started. 
 
 From atomicity we we can conclude the following theorem:
 
@@ -181,7 +181,7 @@ By appliing the above theorem we can recursively calculate the start times:
     start_time[1]   = MAX(0, arriv_time[1])
     start_time[2]   = MAX(start_time[1] + proc_time[1], arriv_time[2])
     ...
-    start_time[N+1] = MAX(start_time[N] + start_time[N], arriv_time[N+1])
+    start_time[N+1] = MAX(start_time[N] + proc_time[N], arriv_time[N+1])
 
 Especially when the incoming rate is a steady one, then we get the following formula:
 
@@ -206,10 +206,16 @@ Now combining Theorem 7 and 10 we get the corrected formula for total service ti
 
 4 Experimental results
 --
+
 Lab tests are work in progress: 
 
-* Uncorrected vs. corrected vs. measured
-* The case when dequeueing time is not negligable
+I implement a small benchmark suite (not a general purpose one) in order to experiment with Coordinated Omission. The project is hosted on GitHub: <https://github.com/csomgyula/co>
+
+Currently there are only preliminary results:
+
+* **It is worthless to test under extreme loads**. When average load is higher than average processing time, requests starts queueing, which has bigger impact then Coordinated Omission. Hence the practical range of load is somewhere between the average processing time and the maximum processing time.
+* Within my environment, the runtime overhead is around 0.1 ms and could reach ~1 ms as a max. Hence **dequeueing time might not be negligable** and should be taken into account as well (ie. in the Correction Scheme).
+* **The difference between processing time and "real" latency seems to be higher when the load is higher** (ie. when load is near to the average processing time). This is quite reasonable. For steady loads I've seen 3-4x difference, for Poisson loads even higher ones. However this is currently work in progress...
 
 5 References
 --

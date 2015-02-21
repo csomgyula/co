@@ -10,10 +10,15 @@ import co.stat.Raw;
  *
  * - Calculate Raw statistics
  * - Calculate Indicators
+ *
+ * RELATIONS:
+ *
+ * - Stat processing is called by the Benchmark when it is done executing the benchmark.
+ * - Stat delegates to Raw and Inditcators in order to do the heavy lifting.
  */
 public class Stat {
     /**
-     * Process statistics after the benchmark execution is done.
+     * Process statistics after benchmark execution is done.
      */
     public void process(Recording recording, boolean export) {
         Raw raw = new Raw(recording);

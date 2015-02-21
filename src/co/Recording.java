@@ -8,7 +8,12 @@ import java.util.List;
  *
  * FEATURES:
  *
- * - Records timings (called by Benchmark)
+ * - Record timings
+ *
+ * RELATIONS:
+ *
+ * - Recording is called by Benchmark during the Benchmark: every time the Benchmark executed the
+ *   benchmarked method, it records the timings through this class.
  */
 public class Recording {
 
@@ -16,7 +21,7 @@ public class Recording {
     private List<Long> arrivals, starts, finishList;
 
     /**
-     * Initialize the stat.
+     * Initialize this recording.
      */
     public Recording(){
         arrivals = new ArrayList<>();
@@ -27,9 +32,6 @@ public class Recording {
     /**
      * Record the given times: the arrival of the request and the start/finish time of its
      * processing.
-     *
-     * Payload is used to avoid dead code elimination. See the description of the Task object for
-     * more.
      */
     public void add(long arrivalNs, long startNs, long finishNs) {
         arrivals.add(arrivalNs);

@@ -3,21 +3,35 @@ package co;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents the benchmark runner that implements the schedule-run-measure model. It executes 
- * the given task as many times as the given request count within the following loop:
+ * Represents the benchmark runner that implements the schedule-run-measure model.
+ *
+ * PROCESS: It executes the given Task as many times as the given request count within the following
+ * loop:
  * 
- * 1. schedule the execution according to the given load distribution
- * 2. execute the given task
+ * 1. schedule the execution according to the given Load distribution
+ * 2. execute the given Task
  * 3. measure the execution time and record it
  *
- * Before entering the loop warms up. After executing the loop calculate statistics.
+ * Also:
+ *
+ * - Before entering the loop it warms up.
+ * - After executing the loop calculate statistics.
  *
  * FEATURES:
  *
  *  - Schedule-run-measure
  *  - Warms up the environment
+ *  - Statistics calculation
  *  - Some support to prevent from dead code elimination (see Task interface for more)
- *  - Configurable Task, Load distribution, warm up- and request count
+ *  - Pluggable Task, Load distribution
+ *  - Configurable warm up- and request count
+ *
+ * RELATIONS:
+ *
+ * - Load generation is delegated to a pluggable Load object
+ * - The benchmarked method is represented by a pluggable Task object
+ * - Time information is recorded through a Recording object
+ * - Statistics is processed, calculated by a Stat object
  */
 public class Benchmark {
     private final Load load;
@@ -41,11 +55,15 @@ public class Benchmark {
     }
 
     /**
-     * Payload is used to avoid dead code elimination. See the description of the Task object for
-     * more.
+     * The return value is the value returned by the benchmarked method, its current execution. It
+     * is used in order to avoid dead code elimination. See the description of the Task interface
+     * for more.
      */
-    public Object payload;
+    public Object taskReturnValue;
 
+    /**
+     * The main benchmark method. First does warmup, then executes the benchmark.
+     */
     public void run() {
         // init benchmark
         Sys.timeZero();
@@ -83,7 +101,7 @@ public class Benchmark {
     }
 
     /**
-     * The main benchmarking method.
+     * The benchmarking method that processes both the warm up cycle and the real benchmark.
      */
     protected long run(String name, int requestCount, Recording recording) {
         Sys.debug(name + " started");
@@ -102,7 +120,7 @@ public class Benchmark {
             
             // run & measure FIXME: can the compiler reorder these actions?
             startedNs = System.nanoTime();
-            payload = task.execute();
+            taskReturnValue = task.execute();
             finishedNs = System.nanoTime();
             
             // increment processed count

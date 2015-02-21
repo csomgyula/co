@@ -1,8 +1,18 @@
 package co;
 
 /**
- * Represents the task interface for the tasks to be benchmarked. Has some support to prevent
+ * Represents the task interface for the methods to be benchmarked. Has some support to prevent
  * dead code elimination.
+ *
+ * FEATURES:
+ *
+ * - Should represent any business method to be benchmarked
+ * - Has some support to prevent from dead code elimination
+ *
+ * RELATIONS:
+ *
+ * - The Task interface is called by the Benchmark in order to execute the benchmarked method, ie.
+ *   this object.
  */
 public interface Task {
     
