@@ -2,8 +2,6 @@ package co.stat;
 
 import co.Sys;
 
-import java.util.*;
-
 /**
  * Handles indicators, ie. average/min/max/percentile time of idle, wait, dequeue, processing,
  * grossProcessing, service, arrival diff and also the calculated service time as per the paper. For
@@ -19,85 +17,14 @@ import java.util.*;
  *
  * Each method is called by Stat
  */ 
-public class Indicators{
-    private Raw raw;
+public class BenchmarkIndicators {
+    private BenchmarkRaw raw;
 
     // indicators calculated by calculateIndicator
     private Indicator idle, wait, dequeue, processing, grossProcessing, service, arrivalDiff,
         estimatedService;
 
-    /**
-     * Struct that holds the following indicators of a sample: average value, min/max and Nth
-     * percentile.
-     */
-    public class Indicator {
-        private String name;
-        private double average, min, max;
-        private long percentile;
-        private int percentage;
-
-        public Indicator(String name) {
-            this.name = name;
-        }
-
-        public Indicator(String name, List<Long> sample) {
-            this.name = name;
-
-            // average
-            average = sample.stream().mapToLong((val) -> val).average().getAsDouble();
-
-            // min, max, percentile
-            List<Long> sampleClone = new ArrayList<>(sample);
-            Collections.sort(sampleClone);
-            int size = sampleClone.size();
-
-            min = sampleClone.get(0);
-            max = sampleClone.get(size - 1);
-
-            percentage = 99;
-            int percentageIndex = (int) ((long) percentage * (long) size / 100l);
-            percentile = sampleClone.get(percentageIndex - 1);
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public double getAverage() {
-            return average;
-        }
-
-        public double getMin() {
-            return min;
-        }
-
-        public double getMax() {
-            return max;
-        }
-
-        public long getPercentile() {
-            return percentile;
-        }
-
-        public int getPercentage() {
-            return percentage;
-        }
-
-        @Override
-        public String toString() {
-            int MILLION = 1_000_000;
-            return String.format(
-                    "%25s: min: %f ms, avg: %f ms, %d%%: %f ms, max: %f ms",
-                    name,
-                    min / MILLION,
-                    average / MILLION,
-                    percentage,
-                    ((double) percentile) / MILLION,
-                    max / MILLION);
-        }
-    }
-
-    public Indicators(Raw raw) {
+    public BenchmarkIndicators(BenchmarkRaw raw) {
         this.raw = raw;
     }
         

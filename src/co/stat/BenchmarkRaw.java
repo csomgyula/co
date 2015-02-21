@@ -21,14 +21,14 @@ import java.util.List;
  *
  * Each method is called by Stat
  */
-public class Raw {
+public class BenchmarkRaw {
     private BenchmarkRecording recording;
 
     // statistics calculated by calculateTimings
     private List<Long> idles, waits, dequeues, processings, grossProcessings,
             services, arrivalDiffs, estimatedServices;
 
-    public Raw(BenchmarkRecording recording) {
+    public BenchmarkRaw(BenchmarkRecording recording) {
         this.recording = recording;
     }
 

@@ -1,6 +1,6 @@
 package co;
 
-import co.stat.Indicators;
+import co.stat.BenchmarkIndicators;
 
 import java.util.concurrent.TimeUnit;
 
@@ -91,24 +91,24 @@ public abstract class Experiment {
         int requestCount = getRequestCount(), warmupCount = getWarmupCount();
 
         // init stat
-        Stat stat = new Stat();
-        Indicators indicators;
+        BenchmarkStat benchmarkStat = new BenchmarkStat();
+        BenchmarkIndicators benchmarkIndicators;
         ExperimentRecording recording = new ExperimentRecording();
         boolean exportRawStat = false;
 
         // main loop
         while (time < maxTime) {
             // run the benchmark under the given load
-            indicators = new Benchmark(
-                    getLoad(time, timeUnit), task, requestCount, warmupCount, exportRawStat)
-                    .run(stat);
+            benchmarkIndicators = new Benchmark(
+                    getLoad(time, timeUnit), task, requestCount, warmupCount, benchmarkStat,
+                    exportRawStat).run();
 
             // record the current benchmark stats
             recording.add(
                     TimeUnit.NANOSECONDS.convert(time, timeUnit),
-                    indicators.getService().getPercentile(),
-                    indicators.getProcessing().getPercentile(),
-                    indicators.getEstimatedService().getPercentile());
+                    benchmarkIndicators.getService().getPercentile(),
+                    benchmarkIndicators.getProcessing().getPercentile(),
+                    benchmarkIndicators.getEstimatedService().getPercentile());
 
             // decrease the load by increasing the time between consecutive requests
             time += deltaTime;

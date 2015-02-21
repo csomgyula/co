@@ -1,7 +1,7 @@
 package co;
 
-import co.stat.Indicators;
-import co.stat.Raw;
+import co.stat.BenchmarkIndicators;
+import co.stat.BenchmarkRaw;
 
 /**
  * Process statistics.
@@ -16,15 +16,15 @@ import co.stat.Raw;
  * - Stat processing is called by the Benchmark when it is done executing the benchmark.
  * - Stat delegates to Raw and Inditcators in order to do the heavy lifting.
  */
-public class Stat {
+public class BenchmarkStat {
     /**
      * Process statistics after benchmark execution is done.
      */
-    public Indicators process(BenchmarkRecording recording, boolean export) {
-        Raw raw = new Raw(recording);
+    public BenchmarkIndicators process(BenchmarkRecording recording, boolean export) {
+        BenchmarkRaw raw = new BenchmarkRaw(recording);
         raw.calculate();
 
-        Indicators indicators = new Indicators(raw);
+        BenchmarkIndicators indicators = new BenchmarkIndicators(raw);
         indicators.calculate();
         indicators.printOut();
 

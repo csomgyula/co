@@ -1,6 +1,6 @@
 package co;
 
-import co.stat.Indicators;
+import co.stat.BenchmarkIndicators;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,12 +40,13 @@ public class Benchmark {
     private final Task task;
     private final int requestCount;
     private final int warmupCount;
+    private final BenchmarkStat stat;
     private final boolean exportRawStat;
 
     /** 
      * Initializes the benchmark with the given arguments.
      */
-    public Benchmark(Load load, Task task, int requestCount, int warmupCount,
+    public Benchmark(Load load, Task task, int requestCount, int warmupCount, BenchmarkStat stat,
                      boolean exportRawStat) {
         Sys.assertTrue(load != null && task != null && requestCount >= 0 && warmupCount >= 0);
         
@@ -53,6 +54,7 @@ public class Benchmark {
         this.task = task;
         this.requestCount = requestCount;
         this.warmupCount = warmupCount;
+        this.stat = stat;
         this.exportRawStat = exportRawStat;
     }
 
@@ -67,15 +69,7 @@ public class Benchmark {
      * The main benchmark method. First does warmup, then executes the benchmark. Finally it returns
      * the indicators of this run.
      */
-    public Indicators run() {
-        return run(new Stat());
-    }
-
-    /**
-     * The main benchmark method. First does warmup, then executes the benchmark. Finally it returns
-     * the indicators of this run.
-     */
-    public Indicators run(Stat stat) {
+    public BenchmarkIndicators run() {
         // init benchmark
         Sys.timeZero();
 
@@ -177,7 +171,8 @@ public class Benchmark {
         boolean exportRawStat = true, info = true;
 
         // Sys.PRINTOUT = false;
-        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount, exportRawStat);
+        Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount,
+                new BenchmarkStat(), exportRawStat);
 
         // run benchmark
         benchmark.run();
