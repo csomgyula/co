@@ -1,5 +1,6 @@
-package co;
+package co.experiment;
 
+import co.*;
 import co.stat.BenchmarkIndicators;
 
 import java.util.concurrent.TimeUnit;
@@ -91,7 +92,7 @@ public abstract class Experiment {
         int requestCount = getRequestCount(), warmupCount = getWarmupCount();
 
         // init stat
-        BenchmarkStat benchmarkStat = new BenchmarkStat();
+        Stat benchmarkStat = new Stat();
         BenchmarkIndicators benchmarkIndicators;
         ExperimentRecording recording = new ExperimentRecording();
         boolean exportRawStat = false;

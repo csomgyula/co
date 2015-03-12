@@ -2,6 +2,8 @@ package co;
 
 import co.stat.BenchmarkIndicators;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,17 +38,67 @@ import java.util.concurrent.TimeUnit;
  * - Statistics is processed, calculated by a Stat object
  */
 public class Benchmark {
+
+    /**
+     * Handles recordings of a Benchmark.
+     *
+     * FEATURES:
+     *
+     * - Record timings
+     *
+     * RELATIONS:
+     *
+     * - Recording is called by Benchmark during the Benchmark: every time the Benchmark executed the
+     *   benchmarked method, it records the timings through this class.
+     */
+    public static  class Recording {
+
+        // statistics recorded by the benchmark
+        private List<Long> arrivals, starts, finishList;
+
+        /**
+         * Initialize this recording.
+         */
+        public Recording(){
+            arrivals = new ArrayList<>();
+            starts = new ArrayList<>();
+            finishList = new ArrayList<>();
+        }
+
+        /**
+         * Record the given times: the arrival of the request and the start/finish time of its
+         * processing.
+         */
+        public void add(long arrivalNs, long startNs, long finishNs) {
+            arrivals.add(arrivalNs);
+            starts.add(startNs);
+            finishList.add(finishNs);
+        }
+
+        public List<Long> getArrivals() {
+            return arrivals;
+        }
+
+        public List<Long> getStarts() {
+            return starts;
+        }
+
+        public List<Long> getFinishList() {
+            return finishList;
+        }
+    }
+
     private final Load load;
     private final Task task;
     private final int requestCount;
     private final int warmupCount;
-    private final BenchmarkStat stat;
+    private final Stat stat;
     private final boolean exportRawStat;
 
     /** 
      * Initializes the benchmark with the given arguments.
      */
-    public Benchmark(Load load, Task task, int requestCount, int warmupCount, BenchmarkStat stat,
+    public Benchmark(Load load, Task task, int requestCount, int warmupCount, Stat stat,
                      boolean exportRawStat) {
         Sys.assertTrue(load != null && task != null && requestCount >= 0 && warmupCount >= 0);
         
@@ -81,16 +133,16 @@ public class Benchmark {
 
         Sys.printOut("Benchmarking... ");
 
-        BenchmarkRecording recording;
+        Recording recording;
 
         // warmup
         long warmupStarted = System.nanoTime();
-        recording = new BenchmarkRecording();
+        recording = new Recording();
         run("warmup", warmupCount, recording);
 
         // benchmark
         long benchmarkStarted = System.nanoTime();
-        recording = new BenchmarkRecording();
+        recording = new Recording();
         run("benchmark", requestCount, recording);
         long benchmarkFinished = System.nanoTime();
 
@@ -107,7 +159,7 @@ public class Benchmark {
     /**
      * The benchmarking method that processes both the warm up cycle and the real benchmark.
      */
-    protected long run(String name, int requestCount, BenchmarkRecording recording) {
+    protected long run(String name, int requestCount, Recording recording) {
         Sys.debug(name + " started");
         
         long startedNs, finishedNs = Long.MIN_VALUE, arrivalNs, benchmarkStartedNs = 0l;
@@ -172,7 +224,7 @@ public class Benchmark {
 
         // Sys.PRINTOUT = false;
         Benchmark benchmark = new Benchmark(load, task, requestCount, warmupCount,
-                new BenchmarkStat(), exportRawStat);
+                new Stat(), exportRawStat);
 
         // run benchmark
         benchmark.run();

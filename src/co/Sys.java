@@ -8,8 +8,12 @@ import java.util.concurrent.TimeUnit;
  * FEATURES:
  *
  *  - Handles 'time zero' a time offset in order to shorten time stamps 
- *  - Provides simple debugging facility
- *  - Provides simple assertion
+ *  - Provides a simple debugging facility
+ *  - Provides a simple assertion facility
+ *
+ *  TODO:
+ *
+ *  - Implement a simple factory to instantiate Load and Task objects
  */
 public class Sys{
     public final static long TIME_ZERO;

@@ -1,6 +1,6 @@
 package co.stat;
 
-import co.BenchmarkRecording;
+import co.Benchmark;
 import co.Sys;
 
 import java.io.BufferedWriter;
@@ -22,13 +22,13 @@ import java.util.List;
  * Each method is called by Stat
  */
 public class BenchmarkRaw {
-    private BenchmarkRecording recording;
+    private Benchmark.Recording recording;
 
     // statistics calculated by calculateTimings
     private List<Long> idles, waits, dequeues, processings, grossProcessings,
             services, arrivalDiffs, estimatedServices;
 
-    public BenchmarkRaw(BenchmarkRecording recording) {
+    public BenchmarkRaw(Benchmark.Recording recording) {
         this.recording = recording;
     }
 
@@ -173,7 +173,7 @@ public class BenchmarkRaw {
         Sys.printlnOut("Raw stat written to " + path);
     }
 
-    public BenchmarkRecording getRecording() {
+    public Benchmark.Recording getRecording() {
         return recording;
     }
 

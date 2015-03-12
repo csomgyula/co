@@ -10,7 +10,7 @@ In this paper I try to give some insight into Coordinated Omission (a term coine
 
 * Chapter 1 briefly introduces Coordinated Omission and the problem it could cause in benchmark measurements and evaluation. For the curious reader other introductionary materials are also available through the Web [1], [2].
 * Chapter 2 analyzes the problem both formally and experimentally.
-* Chapter 3 introduces a possible correction scheme and analyzes it experimentally.
+* Chapter 3 introduces a possible correction scheme and again analyzes it both formally and experimentally.
 
 Note that experimenting is still in progress, there are only just preliminary results.
 

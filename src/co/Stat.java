@@ -15,12 +15,17 @@ import co.stat.BenchmarkRaw;
  *
  * - Stat processing is called by the Benchmark when it is done executing the benchmark.
  * - Stat delegates to Raw and Inditcators in order to do the heavy lifting.
+ *
+ * TODO:
+ *
+ * - Rethink this class:-)
+ *
  */
-public class BenchmarkStat {
+public class Stat {
     /**
      * Process statistics after benchmark execution is done.
      */
-    public BenchmarkIndicators process(BenchmarkRecording recording, boolean export) {
+    public BenchmarkIndicators process(Benchmark.Recording recording, boolean export) {
         BenchmarkRaw raw = new BenchmarkRaw(recording);
         raw.calculate();
 
