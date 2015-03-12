@@ -1,5 +1,7 @@
-Experiments with Coordinated Omission
+Experimenting with Coordinated Omission
 ==
 
-Software is [work in progress](TODO.md). See the [paper](paper.md) for now.
+You might read the [paper](paper.md).
+
+Experimenting / development is still [work in progress](TODO.md), software is in the pre-alpha stage.
 
