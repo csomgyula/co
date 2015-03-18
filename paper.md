@@ -86,7 +86,7 @@ Probably the above sample illustrated the problem behind Coordinated Omission:
 
 Lets formalize the above observation:
 
-**4 Theorem: During high loads, total service time and active processing time starts to diverge due to non-zero idle times, with the assumption that requests arrive in an uncoordinated way, where**:
+**2 Theorem: During high loads, total service time and active processing time starts to diverge due to non-zero idle times, with the assumption that requests arrive in an uncoordinated way, where**:
 
 **3 Definition**: 
 
@@ -106,7 +106,7 @@ High load could be just a jitter, system saturation or exceptional load. The rea
 
 Now we can formalize the problem:
 
-**5 Problem: If incoming request rate is independent from processing rate (ie. in real life), then during high loads benchmark statistics will be tweaked, if measurement does not take into account idle times just processing times. In this case it will underestimate latencies.**
+**4 Problem: If incoming request rate is independent from processing rate (ie. in real life), then during high loads benchmark statistics will be tweaked, if measurement does not take into account idle times just processing times. In this case it will underestimate latencies.**
 
 To summarize, Coordinated Omission fires under the following assumptions: (I) real life acts in an uncoordinated way, (II) high load occurs and (III) benchmark statistics counts only processing times but forget about idle times.
 
@@ -134,13 +134,13 @@ Instead of just using processing times, we must take into account idle times as 
 
 The correction scheme takes the following assumptions:
 
-**6 Assumption: The following statistics must be known**:
+**5 Assumption: The following statistics must be known**:
 
 **(i) Request arrival rate** (not necessarily in advance).
 
 **(ii) Processing times** (which is a natural requirement, since the benchmarking code should record this statistic).
 
-**7 Assumption: Request processing discipline is**
+**6 Assumption: Request processing discipline is**
 
 **(i) single tasking**
 
@@ -154,11 +154,11 @@ Note that in many situations the above assumptions are not likey. There are proc
 
 The last assumption:
 
-**8 Assumption: dequeueing time is negligable**, where dequeueing time means the difference between the time when the request became ready (eligable for processing) and the time when its processing started. 
+**7 Assumption: dequeueing time is negligable**, where dequeueing time means the difference between the time when the request became ready (eligable for processing) and the time when its processing started. 
 
 From atomicity we can conclude the following theorem:
 
-**9 Theorem: If start times of processing are known, then service times can be calculated as follows**:
+**8 Theorem: If start times of processing are known, then service times can be calculated as follows**:
 
     Service time = Start time of processing – Arrival time + Active processing time
 
@@ -166,31 +166,31 @@ Proof: Atomicity means that idle time is the same as Processing start time – A
 
 Before moving on lets introduce some notations:
 
-**10 Notation: Let (i) `arrival_time[N]` denote the known arrival time of the Nth request and (ii) `processing_time[N]` the Nth processing time as measured by the benchmark** (these are the known stats as per Assumption 6). 
+**9 Notation: Let (i) `arrival_time[N]` denote the known arrival time of the Nth request and (ii) `processing_time[N]` the Nth processing time as measured by the benchmark** (these are the known stats as per Assumption 6). 
 
 **Also let (iii) `start_time[N]` denote the start times of processing and (iv) `service_time[N]` the service times** (these are the not-yet-known stats).
 
-First restate Theorem 9 using the above notations:
+First restate Theorem 8 using the above notations:
 
-**9’ Theorem**: Using the above notations Theorem 9 states the following: 
+**8’ Theorem**: Using the above notations Theorem 9 states the following: 
 
     service_time[N] = start_time[N] - arrival_time[N] + processing_time[N]
 
-Since by Assumption 6 arrival- and processing times are known, all that we have to do is to calculate the start times.
+Since by Assumption 5 arrival- and processing times are known, all that we have to do is calculating the start times.
 
 ### 3.2 The formula
 
 Now the main theorem:
 
-**11 Theorem: Start time of the next processing is (almost) equal to the start time of the previous processing time plus the previous processing time or the arrival time of the next request, whichever is greater**:
+**10 Theorem: Start time of the next processing is (almost) equal to the start time of the previous processing time plus the previous processing time or the arrival time of the next request, whichever is greater**:
 
     start_time[N+1] = MAX(start_time[N] + processing_time[N], arrival_time[N+1])
 
-Proof: Due to Assumption 7 processing is (i) single tasking, (iv) continous and (ii) ordered, hence the processing of the next request starts as soon as the previous one finished (which is the same as `start_time[N] + processing_time[N]`), except for the case when the next request has not yet arrived (`arrival_time[N+1] > start_time[N] + processing_time[N]`). Due to Assumption 8 if/whenever the next request is/becomes enqueued, then the dequeueing time is negligable, request processing starts (almost) immediately.
+Proof: Due to Assumption 6 processing is (i) single tasking, (iv) continous and (ii) ordered, hence the processing of the next request starts as soon as the previous one finished (which is the same as `start_time[N] + processing_time[N]`), except for the case when the next request has not yet arrived (`arrival_time[N+1] > start_time[N] + processing_time[N]`). Due to Assumption 7 if/whenever the next request is/becomes enqueued, then the dequeueing time is negligable, request processing starts (almost) immediately.
 
 By appliing the above theorem we can recursively calculate the start times:
 
-**12 Formula: `start_time[N]` can be recursively calculated as follows**:
+**11 Formula: `start_time[N]` can be recursively calculated as follows**:
 
     start_time[1]   = arrival_time[1]
     start_time[2]   = MAX(start_time[1] + processing_time[1], arrival_time[2])
@@ -199,7 +199,7 @@ By appliing the above theorem we can recursively calculate the start times:
 
 Especially when the incoming rate is a steady one, then we get the following formula:
 
-**10.b. Formula**:
+**11.b. Formula**:
  
     start_time[1]   = arrival_time[1]
     start_time[2]   = MAX(start_time[1] + processing_time[1], adjacent_time)
@@ -208,7 +208,7 @@ Especially when the incoming rate is a steady one, then we get the following for
 
 where `adjacent_time` means the (constant) time difference between two consecutive requests.
 
-Now combining Theorem 9 and 12 we get the corrected formula for total service time.
+Now combining Theorem 8 and 11 we get the corrected formula for total service time.
 
 ### 3.3 Preliminary experimental results
 
