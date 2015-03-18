@@ -86,9 +86,7 @@ Probably the above sample illustrated the problem behind Coordinated Omission:
 
 Lets formalize the above observation:
 
-**4 Theorem: During high loads, total service time and active processing time starts to diverge due to non-zero idle times, with the assumption that requests arrive in an uncoordinated way.**  
-
-, where:
+**4 Theorem: During high loads, total service time and active processing time starts to diverge due to non-zero idle times, with the assumption that requests arrive in an uncoordinated way, where**:
 
 **3 Definition**: 
 
@@ -104,7 +102,7 @@ Note that in real contexts, the total service time itself might not accurately m
 
 **(iv) High load** simply means that the incoming rate of requests is higher then their processing rate. That is reqests come in faster then they are processed.
 
-High load could be just a jitter, system saturation or exceptional load. The reason for high load is not important in this context, whatever the reason is,  when load is higher than service speed, latencies will start to diverge from processing times. 
+High load could be just a jitter, system saturation or exceptional load. The reason for high load is not important in this context, whatever the reason is,  when load is higher than service speed, latencies will start to diverge from  their respective processing times. 
 
 Now we can formalize the problem:
 
@@ -114,13 +112,13 @@ To summarize, Coordinated Omission fires under the following assumptions: (I) re
 
 ### 3.2 Preliminary experimental results
 
-An interesting question could be to measure the difference between processing times and real latencies under high load. For this reason I'm implementing a small benchmark suite in order to experiment with Coordinated Omission. The project is hosted on GitHub along with this paper.
+An interesting task could be the measurement of the difference between processing times and real latencies under high load. For this reason I implement a small benchmark suite in order to experiment with Coordinated Omission. The project is hosted on GitHub along with this paper.
 
 Currently there are only preliminary results:
 
-* **It is meaningless to test under extreme loads**. When the average incoming rate is higher than the average processing time, requests start queueing, which has bigger impact then Coordinated Omission. Also if the load time is higher then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. Hence a practical load time should be somewhere between the average processing time and the maximum processing time.
-* **The difference between processing time and "real" latency seems to be higher when the load is higher** (ie. when load is near to the average processing time). This is probably quite reasonable. 
-* On the edge case (ie. load =~ processing time) I've seen 3-4x difference under steady loads and even higher ones for Poisson loads. However this is not science, just preliminary results...
+* **It seems to be meaningless to test under extreme loads**. When the average incoming rate is higher than the average processing time, requests start queueing and latencies increase ad infinitum. Also if requests arrive slower then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. After all a practical load time should be somewhere between the average processing time and the maximum processing time.
+* **The difference between processing time and "real" latency seems to be higher when load is higher** (ie. when load is near to the average processing time). This is probably obvious. 
+* **On the edge case (ie. load =~ processing time) I've seen 3-4x difference under steady loads and even higher ones for Poisson loads**. This is probably not so obvious and itself an interesting question: which load distribution yields higher latencies given that the (distribution of) processing times are the same?.
 
 
 3 A correction scheme
@@ -174,13 +172,13 @@ Before moving on lets introduce some notations:
 
 First restate Theorem 9 using the above notations:
 
-**9’ Theorem**: Using the above notations Theorem 7 states the following: 
+**9’ Theorem**: Using the above notations Theorem 9 states the following: 
 
     service_time[N] = start_time[N] - arrival_time[N] + processing_time[N]
 
 Since by Assumption 6 arrival- and processing times are known, all that we have to do is to calculate the start times.
 
-### 3.2 The correction formula
+### 3.2 The formula
 
 Now the main theorem:
 
@@ -214,7 +212,7 @@ Now combining Theorem 9 and 12 we get the corrected formula for total service ti
 
 ### 3.3 Preliminary experimental results
 
-The suite implements the above correction scheme (see: `co.stat.CorrectionScheme.java`). 
+The benchmark suite implements the above correction scheme (see: `co.stat.CorrectionScheme.java`). 
 
 The main although still preliminary result is the following. Within my laptop environment, the runtime overhead is around 0.1 ms and could even reach ~1,5 ms on the edge case. Hence it seems that for micro tasks (running at the ms level) **dequeueing time is not negligable** and should be taken into account as well (ie. in the Correction Scheme).
 
