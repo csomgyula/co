@@ -55,7 +55,6 @@ After all the above measurement techinque will underestimate high latency events
 * The test loop will report only one high latency event of 10 seconds. 
 * Meanwhile in real life there will be 9 other high latency events with idle time of (at least) 9, 8, ..., 1 seconds.
 
-
 2 Problem analysis
 --
 
@@ -108,23 +107,59 @@ Now we can formalize the problem:
 
 **4 Problem: If incoming request rate is independent from processing rate (ie. in real life), then during high loads benchmark statistics will be tweaked, if measurement does not take into account idle times just processing times. In this case it will underestimate latencies.**
 
-To summarize, Coordinated Omission fires under the following assumptions: (I) real life acts in an uncoordinated way, (II) high load occurs and (III) benchmark statistics counts only processing times but forget about idle times.
+To summarize, the problem related to Coordinated Omission fires under the following assumptions: 
 
-### 3.2 Preliminary experimental results
+1. Real workload is uncoordinated (that is requests arrive in an uncoordinated fashion)
+1. High load occurs (next request arrives before the previous processing is finished)
+1. Benchmark statistics counts only processing times and forget about idle times, which then tweak latency statistics. 
 
-An interesting task could be the measurement of the difference between processing times and real latencies under high load. For this reason I implement a small benchmark suite in order to experiment with Coordinated Omission. The project is hosted on GitHub along with this paper.
+Lets further analyze two questions:
+
+1. Is the real workload uncoordinated?
+1. How much is the latency statistics tweaked?
+
+### 2.2 What is the real workload anyway?
+
+As we've seen Coordinated Omission causes problem iff the real workload is uncoordinated. Hence we should ask ourselves what the real workload is? Are requests always uncoordinated or could they be coordinated as well?
+
+Daniel Stenberg (editor of the HTTP/2 standard) has a nice overview on the brand new HTTP/2 standard [3]. In his paper he quotes some current HTTP/1 statistics which shows that the total number of requests on average to serve the most popular web sites is around 100. That is loading a popular web page is associated with 100 HTTP requests on average (the browser has to load the HTML file itself, then the associated CSS and Javascript files, also the images, etc.) 
+
+Daniel also mentions that:
+
+> Even today, 2015, most desktop web browsers ship with HTTP pipelining disabled by default.
+
+What does that mean? HTTP pipeling would enable the browser to send a new request while still waiting for the response of the previous one. Since most of the time this technique is disabled this means that the browser has to wait for the response before sending a new request on the same connection. 
+
+Also:
+
+> Initially the HTTP 1.1 specification stated that a client was allowed to use maximum of two TCP connections for each host. So, in order to not violate the spec clever sites simply invented new host names and – voilá - you could get more connections to your site and decreased page load times.
+> 
+> Over time, that limitation was removed and today clients easily use 6-8 connections per host name but they still have a limit so sites continue to use this technique to bump the number of connections.
+
+This means that unless you host your web site resources under multiple hostnames, your browser can easily run into Coordinated Omission. Say the browser wants to load a web page with 50 associated resources and will use 5 connections. In this case it can issue only 5 requests in parallel, hence requests have to wait before others finished. Hence some sort of Coordinated Omission occurs.
+
+To sum it up, there could be cases when Coordinated Omission happens in real life. An interesting research area would be to investigate hybrid workloads, when coordinated and uncoordinated omission both occurs. However for now we assume that workload is uncoordinated.
+
+### 2.3 Difference between service times and processing times
+
+An interesting topic is the measurement of the difference between processing times and real latencies under high load. In order to experiment with this and related questions to Coordinated Omission, I implement a small benchmark suite. The project is hosted on GitHub along with this paper. 
 
 Currently there are only preliminary results:
 
-* **It seems to be meaningless to test under extreme loads**. When the average incoming rate is higher than the average processing time, requests start queueing and latencies increase ad infinitum. Also if requests arrive slower then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. After all a practical load time should be somewhere between the average processing time and the maximum processing time.
-* **The difference between processing time and "real" latency seems to be higher when load is higher** (ie. when load is near to the average processing time). This is probably obvious. 
-* **On the edge case (ie. load =~ processing time) I've seen 3-4x difference under steady loads and even higher ones for Poisson loads**. This is probably not so obvious and itself an interesting question: which load distribution yields higher latencies given that the (distribution of) processing times are the same?.
+* I implemented two type of workloads. A **steady** one with constant incoming rate and a load which models **Poisson processes**. The former is typical in microbenchmarks, the latter is typical in queue theory.
+* **It seems to be meaningless to test latencies under extreme loads**. When the average incoming rate is higher than the average processing time, requests start queueing and latencies increase ad infinitum. Also if requests arrive slower then the maximum processing time, then high load will not occur, hence Coordinated Omission does not fire. After all a practical load time should be somewhere between the average processing time and the maximum processing time.
+* **The difference between processing time and total service time seems to be higher when load is higher** (ie. when load is near to the average processing time). This is probably obvious (since high loads would occur more frequently). 
+* **On the edge case (ie. load =~ processing time) I've seen 3-4x difference under steady loads and even higher ones for Poisson loads**. This is probably not so obvious and is itself an interesting question: which load distribution yields higher latencies given that (distribution of) processing times are the same?.
+
+Further work:
+
+* Other load types could be examined, for instance web-like bursts.
 
 
 3 A correction scheme
 --
 
-There are situations when Coordinated Omission could be avoided, for instance by an external, async load generator [3]. However for now we focus on correction rather than avoidance. The latter is a more ambitious goal, however the former might be still useful in some situations (such as legacy benchmarking systems, where rewriting the code is not a viable option). In this paper we are going after a nonintrusive technique which does not require the rewriting of the original benchmarking code.
+There are situations when Coordinated Omission could be avoided, for instance by an external, async load generator [4]. However for now we focus on correction rather than avoidance. The latter is a more ambitious goal, however the former might be still useful in some situations (such as legacy benchmarking systems, where rewriting the code is not a viable option). In this paper we are going after a nonintrusive technique which does not require the rewriting of the original benchmarking code.
 
 Probably the previous problem analysis also shows how to correct the problem in general: 
 
@@ -225,12 +260,15 @@ References
 [2] Attila-Mihaly Balazs: How (NOT TO) measure latency
 <http://www.todaysoftmag.com/article/756/how-not-to-measure-latency>
 
-[3] Gil Tene: wrk2 README:
+[3]  Daniel Stenberg: http2 explained  
+<http://daniel.haxx.se/http2/>
+
+[4] Gil Tene: wrk2 README:
 
 > some completely asynchronous load generators can avoid Coordinated Omission by sending requests without waiting for previous responses to arrive. However, this (asynchronous) technique is normally only effective with non-blocking protocols or single-request-per-connection workloads. When the application being measured may involve mutiple serial request/response interactions within each connection, or a blocking protocol (as is the case with most TCP and HTTP workloads), this completely asynchronous behavior is usually not a viable option.
 https://github.com/giltene/wrk2 
 
 <https://github.com/giltene/wrk2>
 
-[4] Wikipedia article on Service disciplines <http://en.wikipedia.org/wiki/Queueing_theory#Service_disciplines>
+[5] Wikipedia article on Service disciplines <http://en.wikipedia.org/wiki/Queueing_theory#Service_disciplines>
 
